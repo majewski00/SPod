@@ -1,0 +1,12 @@
+{
+  "name": "spod",
+  "version": "0.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:lint": "eslint src/ --ext .js,.jsx,.mjs --no-error-on-unmatched-pattern --fix"
+  },
+  "description": "",
+  "devDependencies": {
+    "eslint": "^9.19.0"
+  }
+}
