@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.10 - 2025-02-11
+
+### Added
+
+- Basic React frontend with Amplify
+
 ## 0.0.9 - 2025-02-11
 
 ### Changed

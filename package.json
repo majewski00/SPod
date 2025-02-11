@@ -1,17 +1,20 @@
 {
   "name": "spod",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "scripts": {
     "start": "source ./local-vars.sh && npm-run-all -p 'local:*'",
     "local:backend": "echo 'No backend to run'",
-    "local:frontend": "cd src/frontend && source ./frontend-vars.sh && vite",
+    "local:frontend": "cd src/frontend && source ./frontend-vars.sh && vite dev",
     "test:lint": "eslint src/ --ext .js,.jsx,.mjs --no-error-on-unmatched-pattern --fix"
   },
   "description": "",
   "dependencies": {
+    "@aws-amplify/ui-react": "^6.9.1",
     "aws-amplify": "^6.12.2",
+    "constructs": "^10.4.2",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.1.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -25,6 +28,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "npm-run-all": "^4.1.5",
     "vite": "^6.0.5"
   }
 }

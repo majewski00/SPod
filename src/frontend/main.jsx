@@ -3,7 +3,7 @@ import {createRoot} from 'react-dom/client'
 import {BrowserRouter} from 'react-router-dom'
 import {Amplify} from 'aws-amplify'
 import {Authenticator, View} from '@aws-amplify/ui-react'
-import Routes from './js/routes'
+import AppRoutes from "./js/routes";
 
 
 const urls = ["http://localhost:4000"]
@@ -14,16 +14,16 @@ Amplify.configure({
         Cognito: {
             loginWith: {
                 oauth: {
-                    domain: process.env.COGNITO_DOMAIN,
+                    domain: import.meta.env.COGNITO_DOMAIN,
                     redirectSignIn: [url],
                     redirectSignOut: [url],
                     responseType: 'code',
                     scopes: ['email', 'openid', 'aws.cognito.signin.user.admin', 'profile']
                 }
             },
-            region: process.env.AWS_REGION,
-            userPoolClientId: process.env.COGNITO_USER_POOL_APP_CLIENT_ID,
-            userPoolId: process.env.COGNITO_USER_POOL_ID
+            region: import.meta.env.AWS_REGION,
+            userPoolClientId: import.meta.env.COGNITO_USER_POOL_APP_CLIENT_ID,
+            userPoolId: import.meta.env.COGNITO_USER_POOL_ID
         }
     }
 })
@@ -33,7 +33,7 @@ root.render(
     <BrowserRouter>
         <Authenticator.Provider>
             <View>
-                <Routes/>
+                <AppRoutes/>
             </View>
         </Authenticator.Provider>
     </BrowserRouter>
