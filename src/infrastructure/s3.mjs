@@ -7,7 +7,7 @@ export class StorageS3Stack extends cdk.Stack {
     storageS3BucketArn
 
     constructor(scope, id, props) {
-        super();
+        super(scope, id, props);
 
         const SERVICE = process.env.SERVICE
         const BUILD_STAGE = process.env.BUILD_STAGE
@@ -33,11 +33,11 @@ export class StorageS3Stack extends cdk.Stack {
         this.storageS3BucketArn = storageBucket.bucketArn
 
         new ssm.StringParameter(this, `${SERVICE}-StorageS3BucketIdParameter`, {
-            parameterName: `${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/storage_s3_bucket_id`,
+            parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/storage_s3_bucket_id`,
             stringValue: this.storageS3BucketId
         })
         new ssm.StringParameter(this, `${SERVICE}-StorageS3BucketArnParameter`, {
-            parameterName: `${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/storage_s3_bucket_arn`,
+            parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/storage_s3_bucket_arn`,
             stringValue: this.storageS3BucketArn
         })
     }

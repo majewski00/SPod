@@ -59,15 +59,15 @@ export class CognitoStack extends cdk.Stack {
         })
 
         new ssm.StringParameter(this, `${SERVICE}-UserPoolClientIdParameter`, {
-            parameterName: `${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/user_pool_client_id`,
+            parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/user_pool_client_id`,
             stringValue: userPoolClient.userPoolClientId
         })
         new ssm.StringParameter(this, `${SERVICE}-UserPoolIdParameter`, {
-            parameterName: `${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/user_pool_id`,
+            parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/user_pool_id`,
             stringValue: this.userPool.userPoolId
         })
         new ssm.StringParameter(this, `${SERVICE}-CognitoDomainParameter`, {
-            parameterName: `${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/cognito_domain`,
+            parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/cognito_domain`,
             stringValue: `${this.userPoolDomain.domainName}.auth.${AWS_REGION}.amazoncognito.com`
         })
     }

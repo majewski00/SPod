@@ -9,7 +9,7 @@ export class FrontendStack extends cdk.Stack {
     cloudfrontDistribution
 
     constructor(scope, id, props) {
-        super();
+        super(scope, id, props);
 
         const SERVICE = process.env.SERVICE
         const BUILD_STAGE = process.env.BUILD_STAGE
@@ -66,11 +66,11 @@ export class FrontendStack extends cdk.Stack {
         })
 
         new ssm.StringParameter(this, `${SERVICE}-FrontendBucketIdParameter`, {
-            parameterName: `${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/frontend_bucket_id`,
+            parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/frontend_bucket_id`,
             stringValue: this.frontendBucket.bucketName
         })
         new ssm.StringParameter(this, `${SERVICE}-CloudfrontDistributionIdParameter`, {
-            parameterName: `${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/cloudfront_distribution`,
+            parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/cloudfront_distribution`,
             stringValue: this.cloudfrontDistribution.distributionId
         })
     }
