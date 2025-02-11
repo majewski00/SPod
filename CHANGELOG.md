@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.9 - 2025-02-11
+
+### Changed
+
+- ability to create an account with cognito
+- _UserPoolEmail_ for the email attribute
+- tweaks in the `cognito.mjs` file
+- _SES_IDENTITY_ARN_ local variable
+
 ## 0.0.8 - 2025-02-11
 
 ### Changed

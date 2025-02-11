@@ -1,11 +1,13 @@
 import * as cdk from "aws-cdk-lib";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as ssm from "aws-cdk-lib/aws-ssm";
+import * as ses from "aws-cdk-lib/aws-ses";
 
 
 export class CognitoStack extends cdk.Stack {
-    userPool
-    userPoolClient
+    userPool;
+    userPoolClient;
+    userPoolDomain;
 
     constructor(scope, id, props) {
         super(scope, id, props);
@@ -13,30 +15,46 @@ export class CognitoStack extends cdk.Stack {
         const SERVICE = process.env.SERVICE
         const BUILD_STAGE = process.env.BUILD_STAGE
         const AWS_REGION = process.env.AWS_REGION
+        const SES_IDENTITY_ARN = process.env.SES_IDENTITY_ARN
 
         const clientUrls = ["http://localhost:4000"]
 
+        let userPoolEmail;
+        if (SES_IDENTITY_ARN) {
+            const emailIdentity = ses.EmailIdentity.fromEmailIdentityName(this, `${SERVICE}-emailIdentity`, SES_IDENTITY_ARN)
+
+            userPoolEmail = cognito.UserPoolEmail.withSES({
+                fromEmail: emailIdentity.emailIdentityName,
+                fromName: 'SPod',
+                replyTo: emailIdentity.emailIdentityName,
+                sesRegion: AWS_REGION
+            })
+        } else {
+            userPoolEmail = cognito.UserPoolEmail.withCognito()
+        }
+
         this.userPool = new cognito.UserPool(this, `${SERVICE}-UserPool`, {
+            userPoolName: `${SERVICE}-${BUILD_STAGE}-user-pool`,
+            selfSignUpEnabled: true,
+            signInAliases: {
+                email: true
+            },
             autoVerify: {
                 email: true
             },
             passwordPolicy: {
-                minLength: 6
+                minLength: 6 // TODO: Enhance password policy
             },
-            selfSignUpEnabled: false,
-            signInAliases: {
-                email: true
-            },
-            userPoolName: `${SERVICE}-${BUILD_STAGE}-user-pool`,
+            email: userPoolEmail
         });
 
+        // TODO: SAML Identity Provider
         const supportedIdentityProviders = [cognito.UserPoolClientIdentityProvider.COGNITO]
 
-        // UserPoolIdentityProviderSaml
-
         const userPoolClient = this.userPool.addClient(`${SERVICE}-UserPoolClient`, {
+            userPoolClientName: `${SERVICE}-${BUILD_STAGE}-client`,
             authFlows: {
-                adminUserPassword: False,
+                adminUserPassword: false,
                 userPassword: true,
                 userSrp: true
             },
@@ -44,17 +62,19 @@ export class CognitoStack extends cdk.Stack {
                 callbackUrls: clientUrls,
                 logoutUrls: clientUrls,
                 flows: {authorizationCodeGrant: true},
-                // scopes
+                scopes: [
+                    cognito.OAuthScope.EMAIL,
+                    cognito.OAuthScope.OPENID,
+                    cognito.OAuthScope.PROFILE
+                ]
             },
             generateSecret: false,
             preventUserExistenceErrors: true,
             supportedIdentityProviders,
-            userPoolClientName: `${SERVICE}-${BUILD_STAGE}-client`
         })
-
         this.userPoolDomain = this.userPool.addDomain(`${SERVICE}-userPoolDomain`, {
             cognitoDomain: {
-                domainPrefix: SERVICE
+                domainPrefix: SERVICE.toLowerCase() + "-" + BUILD_STAGE
             }
         })
 
