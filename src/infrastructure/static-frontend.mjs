@@ -15,15 +15,13 @@ export class FrontendStack extends cdk.Stack {
         const BUILD_STAGE = process.env.BUILD_STAGE
         const AWS_REGION = process.env.AWS_REGION
 
-        const {version} = props
-
         const originAccessIdentity = new cloudfront.OriginAccessIdentity(this, `${SERVICE}-OriginAccessIdentity`, {
                 comment: `${SERVICE} ${BUILD_STAGE} ${AWS_REGION} Origin Access Identity`
             }
         )
         this.frontendBucket = new s3.Bucket(this, `${SERVICE}-Frontend-Bucket`, {
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-            bucketName: `${SERVICE}-site`,
+            bucketName: `${SERVICE}-${BUILD_STAGE}-site`,
             publicReadAccess: false,
             removalPolicy: cdk.RemovalPolicy.RETAIN
         })
@@ -46,10 +44,9 @@ export class FrontendStack extends cdk.Stack {
                 origin: new origins.S3BucketOrigin(this.frontendBucket, {
                     originAccessIdentity
                 }),
-                // viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
+                viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
             },
-            certificate: undefined, // USE_DOMAIN ?acm
-            defaultRootObject: `index-${version}.html`,
+            defaultRootObject: `index.html`,
             errorResponses: [
                 {
                     httpStatus: 404,
@@ -58,7 +55,8 @@ export class FrontendStack extends cdk.Stack {
                 },
             ],
             domainNames: undefined,
-            priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
+            certificate: undefined,
+            priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
             env: {
                 account: process.env.CDK_DEPLOY_ACCOUNT,
                 region: 'us-east-1'
@@ -73,5 +71,9 @@ export class FrontendStack extends cdk.Stack {
             parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/cloudfront_distribution`,
             stringValue: this.cloudfrontDistribution.distributionId
         })
+        new ssm.StringParameter(this, `${SERVICE}-CloudfrontDomainParameter`, {
+            parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/cloudfront_domain`,
+            stringValue: this.cloudfrontDistribution.distributionDomainName
+        });
     }
 }

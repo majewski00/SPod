@@ -1,6 +1,6 @@
 {
   "name": "spod",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "scripts": {
     "start": "source ./local-vars.sh && npm-run-all -p 'local:*'",
     "local:backend": "echo 'No backend to run'",
@@ -10,6 +10,7 @@
   "description": "",
   "dependencies": {
     "@aws-amplify/ui-react": "^6.9.1",
+    "@mui/material": "^6.4.4",
     "aws-amplify": "^6.12.2",
     "constructs": "^10.4.2",
     "react": "^18.3.1",

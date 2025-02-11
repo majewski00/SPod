@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.11 - 2025-02-11
+
+### Changed
+
+- tweaks in `static-frontend.mjs` file
+
+### Added
+
+- _cloudfront_domain_ ssm parameter in the `FrontendStack` constructor
+
 ## 0.0.10 - 2025-02-11
 
 ### Added
