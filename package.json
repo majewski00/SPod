@@ -1,6 +1,6 @@
 {
   "name": "spod",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "scripts": {
     "start": "source ./local-vars.sh && npm-run-all -p 'local:*'",
     "local:backend": "echo 'No backend to run'",

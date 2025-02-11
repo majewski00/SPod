@@ -4,7 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## 0.0.7 - 2025-02-03
+## 0.0.8 - 2025-02-11
+
+### Changed
+
+- change overly broad IAM policy for the S3 storage bucket
+
+### Added
+
+- `index.mjs` file to deploy three CDK stacks
+- `deploy` script to deploy the CDK stacks
+- `destroy` script to destroy the CDK stacks
+- `local-vars.sh` file to generate the local environment variables
+
+## 0.0.7 - 2025-02-11
 
 ### Fixed
 

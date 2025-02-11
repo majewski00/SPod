@@ -1,9 +1,9 @@
 import {readFileSync} from 'fs'
 import {join} from 'path'
 import * as cdk from 'aws-cdk-lib'
-import {StorageS3Stack} from './s3.mjs'
-import {FrontendStack} from './static-frontend.mjs'
 import {CognitoStack} from './cognito.mjs'
+import {FrontendStack} from './static-frontend.mjs'
+import {StorageS3Stack} from './s3.mjs'
 
 const SERVICE = process.env.SERVICE
 const BUILD_STAGE = process.env.BUILD_STAGE
@@ -12,7 +12,7 @@ const AWS_REGION = process.env.AWS_REGION
 const app = new cdk.App()
 const localPackageJson = JSON.parse(readFileSync(join(process.cwd(), '../../package.json'), 'utf8'))
 
-const frontend = new FrontendStack(app, `${id}-FrontendStack`, {
+const cognito = new CognitoStack(app, `${SERVICE}-CognitoStack`, {
     version: localPackageJson.version,
     env: {
         account: process.env.CDK_DEPLOY_ACCOUNT,
@@ -20,7 +20,8 @@ const frontend = new FrontendStack(app, `${id}-FrontendStack`, {
     },
     terminationProtection: false
 })
-const s3 = new StorageS3Stack(app, `${id}-StorageS3Stack`, {
+
+const frontend = new FrontendStack(app, `${SERVICE}-FrontendStack`, {
     version: localPackageJson.version,
     env: {
         account: process.env.CDK_DEPLOY_ACCOUNT,
@@ -28,7 +29,8 @@ const s3 = new StorageS3Stack(app, `${id}-StorageS3Stack`, {
     },
     terminationProtection: false
 })
-const cognito = new CognitoStack(app, `${id}-CognitoStack`, {
+
+const s3 = new StorageS3Stack(app, `${SERVICE}-StorageS3Stack`, {
     version: localPackageJson.version,
     env: {
         account: process.env.CDK_DEPLOY_ACCOUNT,

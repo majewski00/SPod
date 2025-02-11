@@ -23,11 +23,33 @@ export class StorageS3Stack extends cdk.Stack {
         storageBucket.addToResourcePolicy(
             new cdk.aws_iam.PolicyStatement({
                 actions: ['*'],
-                resources: [storageBucket.bucketArn, $`${storageBucket.bucketArn}/*`],
+                resources: [storageBucket.bucketArn, `${storageBucket.bucketArn}/*`],
                 principals: [new cdk.aws_iam.AnyPrincipal()],
                 effect: cdk.aws_iam.Effect.DENY,
+                conditions: {
+                    Bool: {
+                        'aws:SecureTransport': 'false'
+                    }
+                },
+                sid: 'DenyUnSecureTransport'
             })
         )
+        storageBucket.addToResourcePolicy(
+            new cdk.aws_iam.PolicyStatement({
+                actions: [
+                    's3:GetObject',
+                    's3:PutObject',
+                    's3:DeleteObject',
+                    's3:ListBucket'
+                ],
+                resources: [storageBucket.bucketArn, `${storageBucket.bucketArn}/*`],
+                principals: [new cdk.aws_iam.AnyPrincipal()],
+                effect: cdk.aws_iam.Effect.ALLOW,
+                sid: 'AllowReadWriteList'
+            })
+        )
+
+        // TODO: Add CORS (Cross-Origin Resource Sharing) policy to the S3 bucket for local development
 
         this.storageS3BucketId = storageBucket.bucketName
         this.storageS3BucketArn = storageBucket.bucketArn
