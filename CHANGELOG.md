@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.12 - 2025-02-12
+
+### Fixed
+
+- remove the policy for the S3 bucket in the `StorageStack` constructor that was failing ('s3:GetObject' etc.)
+
+### Added
+
+- **deploy** and **destroy** npm scripts
+
+### Changed
+
+- simplify the permissions added to SiteBucket for the CloudFront access
+
 ## 0.0.11 - 2025-02-11
 
 ### Changed

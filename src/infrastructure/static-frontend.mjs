@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib'
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins'
-import * as iam from 'aws-cdk-lib/aws-iam'
 import * as ssm from 'aws-cdk-lib/aws-ssm'
 
 export class FrontendStack extends cdk.Stack {
@@ -23,19 +22,8 @@ export class FrontendStack extends cdk.Stack {
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
             bucketName: `${SERVICE}-${BUILD_STAGE}-site`,
             publicReadAccess: false,
-            removalPolicy: cdk.RemovalPolicy.RETAIN
         })
-        this.frontendBucket.addToResourcePolicy(
-            new iam.PolicyStatement({
-                actions: ['s3:GetObject'],
-                principals: [
-                    new iam.CanonicalUserPrincipal(
-                        originAccessIdentity.cloudFrontOriginAccessIdentityS3CanonicalUserId
-                    ),
-                ],
-                resources: [this.frontendBucket.arnForObjects('*')],
-            })
-        );
+        this.frontendBucket.grantRead(originAccessIdentity)
 
         this.cloudfrontDistribution = new cloudfront.Distribution(this, `${SERVICE}-SiteCloudFrontDistribution`, {
             comment: `${SERVICE}-${BUILD_STAGE}-frontend`,
@@ -64,7 +52,7 @@ export class FrontendStack extends cdk.Stack {
         })
 
         new ssm.StringParameter(this, `${SERVICE}-FrontendBucketIdParameter`, {
-            parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/frontend_bucket_id`,
+            parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/frontend_s3_bucket_id`,
             stringValue: this.frontendBucket.bucketName
         })
         new ssm.StringParameter(this, `${SERVICE}-CloudfrontDistributionIdParameter`, {
