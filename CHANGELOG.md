@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.15 - 2025-03-23
+
+### Changed
+
+- Enhance `deploy.sh` and `destroy.sh` scripts
+
 ## 0.0.14 - 2025-03-23
 
 ### Fixed
