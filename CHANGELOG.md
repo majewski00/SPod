@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.13 - 2025-03-23
+
+### Changed
+
+- `cognito.mjs`:
+    - Explicitly set only the `email` attribute as signInAliases
+    - Add fullname to the user attributes (standardAttributes)
+    - enhance password policy
+
 ## 0.0.12 - 2025-02-12
 
 ### Fixed

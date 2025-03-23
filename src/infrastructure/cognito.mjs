@@ -33,17 +33,28 @@ export class CognitoStack extends cdk.Stack {
             userPoolEmail = cognito.UserPoolEmail.withCognito()
         }
 
+        // TODO: Add MFA
         this.userPool = new cognito.UserPool(this, `${SERVICE}-UserPool`, {
             userPoolName: `${SERVICE}-${BUILD_STAGE}-user-pool`,
             selfSignUpEnabled: true,
             signInAliases: {
-                email: true
+                email: true,
+                username: false
             },
             autoVerify: {
                 email: true
             },
             passwordPolicy: {
-                minLength: 6 // TODO: Enhance password policy
+                minLength: 8,
+                requireLowercase: true,
+                requireUppercase: true,
+                requireDigits: true
+            },
+            standardAttributes: {
+                fullname: {
+                    required: true,
+                    mutable: true
+                }
             },
             email: userPoolEmail
         });
@@ -74,10 +85,11 @@ export class CognitoStack extends cdk.Stack {
         })
         this.userPoolDomain = this.userPool.addDomain(`${SERVICE}-userPoolDomain`, {
             cognitoDomain: {
-                domainPrefix: SERVICE.toLowerCase() + "-" + BUILD_STAGE
+                domainPrefix: SERVICE.toLowerCase() + "-" + BUILD_STAGE // TODO: this.account.substring(0, 5)
             }
         })
 
+        // TODO: Add "cdk/" prefix to parameters' names
         new ssm.StringParameter(this, `${SERVICE}-UserPoolClientIdParameter`, {
             parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/user_pool_client_id`,
             stringValue: userPoolClient.userPoolClientId
