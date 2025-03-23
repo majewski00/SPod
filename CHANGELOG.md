@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.14 - 2025-03-23
+
+### Fixed
+
+- Missmatch in the **COGNITO_USER_POOL_CLIENT_ID** name (`vite.config.js` vs. `frontend/main.jsx`)
+- Define environment variables in the `vite.config.js` file
+
+### Added
+
+- Validation in `frontend-vars.sh` file
+- Working authentication with Cognito using Amplify in `frontend/js/pages/SignIn.jsx` (LoginPage.jsx)
+
 ## 0.0.13 - 2025-03-23
 
 ### Changed
