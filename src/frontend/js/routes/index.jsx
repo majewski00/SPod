@@ -3,7 +3,7 @@ import {useAuthenticator} from '@aws-amplify/ui-react';
 import LoaderPage from "../pages/LoaderPage";
 
 // Lazy load the page components
-const LoginPage = lazy(() => import('../pages/LoginPage'));
+const LoginPage = lazy(() => import('../pages/SignInPage'));
 const HomePage = lazy(() => import('../pages/HomePage'));
 
 const AppRoutes = () => {
