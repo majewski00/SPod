@@ -6,8 +6,10 @@ import * as ses from "aws-cdk-lib/aws-ses";
 
 export class CognitoStack extends cdk.Stack {
     userPool;
+    userPoolId;
     userPoolClient;
     userPoolDomain;
+    userPoolClientId;
 
     constructor(scope, id, props) {
         super(scope, id, props);
@@ -88,6 +90,8 @@ export class CognitoStack extends cdk.Stack {
                 domainPrefix: SERVICE.toLowerCase() + "-" + BUILD_STAGE // TODO: this.account.substring(0, 5)
             }
         })
+        this.userPoolClientId = userPoolClient.userPoolClientId
+        this.userPoolId = this.userPool.userPoolId
 
         // TODO: Add "cdk/" prefix to parameters' names
         new ssm.StringParameter(this, `${SERVICE}-UserPoolClientIdParameter`, {
