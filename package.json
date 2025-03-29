@@ -1,9 +1,9 @@
 {
   "name": "spod",
-  "version": "0.0.15",
+  "version": "0.0.18",
   "scripts": {
     "start": "source ./local-vars.sh && npm-run-all -p 'local:*'",
-    "local:backend": "echo 'No backend to run'",
+    "local:backend": "cd src/backend/api && sls offline ",
     "local:frontend": "cd src/frontend && source ./frontend-vars.sh && vite dev",
     "deploy": "source ./deploy.sh",
     "destroy": "source ./destroy.sh",
@@ -12,11 +12,19 @@
   "description": "",
   "dependencies": {
     "@aws-amplify/ui-react": "^6.9.1",
+    "@aws-sdk/client-dynamodb": "^3.777.0",
+    "@aws-sdk/client-s3": "^3.777.0",
+    "@aws-sdk/s3-request-presigner": "^3.777.0",
+    "@codegenie/serverless-express": "^4.16.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.4.4",
     "aws-amplify": "^6.12.2",
     "constructs": "^10.4.2",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "helmet": "^8.1.0",
+    "nocache": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.1.5"
@@ -28,12 +36,14 @@
     "@vitejs/plugin-react": "^4.3.4",
     "aws-cdk": "^2.177.0",
     "aws-cdk-lib": "^2.177.0",
+    "esbuild": "^0.25.1",
     "eslint": "^9.17.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
     "npm-run-all": "^4.1.5",
+    "serverless-esbuild": "^1.55.0",
     "vite": "^6.0.5"
   }
 }

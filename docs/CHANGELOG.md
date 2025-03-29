@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.18 - 2025-03-29
+
+### Added
+
+- First APIs: `files.js`, `folders.js` routes
+- `backend/api/serverless.yml` file (using ESbuild) and handler for serverless-express in `lambda.js`
+- `constants` folder with `routes.js` and `s3-signed-url.js` functions
+
+### Changed
+
+- missing deps in `package.json`
+
+## 0.0.17 - 2025-03-29
+
+### Changed
+
+- Clean-up project structure: `scripts/` `docs/`
+- Proper formatting with Prettier in `infrastructure/`
+
+### Added
+
+- DynamoDB CDK Stack
+
 ## 0.0.16 - 2025-03-24
 
 ### Added

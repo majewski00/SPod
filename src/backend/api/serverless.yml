@@ -1,0 +1,91 @@
+service: ${self:custom.service}
+frameworkVersion: '4'
+
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stackName: ${self:custom.name}
+  region: ${env:AWS_REGION, 'us-east-1'}
+  stage: ${env:BUILD_STAGE}
+  httpApi:
+    id: ${ssm:/${self:custom.service}/${self:provider.stage}/${self:provider.region}/api_gateway_rest_api_id}
+  tags:
+    Stage: ${provider:stage}
+    Region: ${self:provider.region}
+    Service: ${self:custom.service}
+    # Version: ${ssm:/${self:custom.service}/${self:provider.stage}/${self:provider.region}/version}
+    'Managed By': 'Serverless'
+  stackTags:
+    Stage: ${provider:stage}
+    Region: ${self:provider.region}
+    Service: ${self:custom.service}
+    # Version: ${ssm:/${self:custom.service}/${self:provider.stage}/${self:provider.region}/version}
+    'Managed By': 'Serverless'
+  timeout: 30
+  iam:
+    role:
+      name: ${self:custom.service}
+      statements:
+        - Sid: "SSM"
+          Effect: "Allow"
+          Action:
+            - "ssm:GetParameters"
+          Resource: 
+            - "arn:aws:ssm:${self:provider.region}:${aws:accountId}:parameter/*"
+        - Sid: "DynamoDB"
+          Effect: "Allow"
+          Action:
+            - "dynamodb:PutItem"
+            - "dynamodb:GetItem"
+            - "dynamodb:Query"
+          Resource: 
+            - "${ssm:/${self:custom.service}/${provider:stage}/${env:AWS_REGION}/dynamodb_table_arn}"
+        - Sid: "S3"
+          Effect: "Allow"
+          Action:
+            - "s3:PutObject"
+            - "s3:GetObject"
+            - "s3:ListBucket"
+          Resource: 
+            - "${ssm:/${self:custom.service}/${provider:stage}/${env:AWS_REGION}/storage_s3_bucket_arn}"
+
+
+functions:
+  backend:
+    name: ${self:custom.service}
+    handler: lambda.handler
+    environment:
+      DYNAMODB_TABLE_NAME: ${ssm:/${self:custom.service}/${provider:stage}/${env:AWS_REGION}/dynamodb_table_name}
+      S3_STORAGE_BUCKET_NAME: ${ssm:/${self:custom.service}/${provider:stage}/${env:AWS_REGION}/s3_storage_bucket_name}
+    events:
+      - httpApi:
+          method: GET
+          path: /api{proxy+}
+          authorizer:
+            id: ${ssm:/${self:custom.service}/${provider:stage}/${env:AWS_REGION}/api_gateway_authorizer_id_cognito}
+      - httpApi:
+          method: POST
+          path: /api{proxy+}
+          authorizer:
+            id: ${ssm:/${self:custom.service}/${provider:stage}/${env:AWS_REGION}/api_gateway_authorizer_id_cognito}
+
+
+custom:
+  service: ${self:custom.service}
+  name: ${self:custom.service}-backendAPIs
+
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: false
+    target: 'node20'
+    platform: "node"
+    packager: "npm"
+    exclude:
+      - aws-sdk
+
+
+plugins:
+  - serverless-esbuild
+  - serverless-offline
