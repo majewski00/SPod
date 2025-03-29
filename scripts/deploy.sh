@@ -1,5 +1,6 @@
 #!/bin/bash
-exec > >(tee deploy-log.txt) 2>&1
+mkdir -p logs
+exec > >(tee logs/deploy-log.txt) 2>&1
 source ./local-vars.sh
 
 CDK_DEPLOY_ACCOUNT=$(aws sts get-caller-identity --profile "$AWS_PROFILE" | jq -r .Account)
