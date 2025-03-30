@@ -1,9 +1,9 @@
 {
   "name": "spod",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "scripts": {
     "start": "source ./local-vars.sh && npm-run-all -p 'local:*'",
-    "local:backend": "cd src/backend/api && sls offline ",
+    "local:backend": "cd src/backend/api && sls offline",
     "local:frontend": "cd src/frontend && source ./frontend-vars.sh && vite dev",
     "deploy": "source ./deploy.sh",
     "destroy": "source ./destroy.sh",
@@ -43,7 +43,7 @@
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
     "npm-run-all": "^4.1.5",
-    "serverless-esbuild": "^1.55.0",
+    "serverless-offline": "^14.4.0",
     "vite": "^6.0.5"
   }
 }

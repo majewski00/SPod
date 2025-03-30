@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.19 - 2025-03-30
+
+### Changed
+
+- Setup Serverless to use built-in ESbuild with `esbuild.config.js`
+- Remove "serverless-esbuild" from devDependencies
+
+### Fixed
+
+- Missing "self:" syntax in `serverless.yml`
+
 ## 0.0.18 - 2025-03-29
 
 ### Added
