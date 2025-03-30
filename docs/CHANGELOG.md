@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.20 - 2025-03-30
+
+### Changed
+
+- format `cognito.mjs` with Prettier
+- *authorizer.ref* --> authorizerId
+- systematization of files' paths in `backend/api/`
+
+### Added
+
+- Toy endpoint for local testing: `files/checkout`
+
 ## 0.0.19 - 2025-03-30
 
 ### Changed

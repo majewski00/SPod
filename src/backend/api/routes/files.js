@@ -28,7 +28,7 @@ export default (router) => {
         new PutItemCommand({
           TableName: process.env.DYNAMODB_TABLE_NAME,
           Item: {
-            PK: { S: `USER#${req.body.userId}` },
+            PK: { S: `USER#${req.body.userId}` }, // TODO: ????
             SK: { S: `FOLDER#${req.body.parentId}#FILE#${fileId}` },
             fileName: { S: req.body.fileName },
             fileId: { S: fileId },
@@ -57,7 +57,7 @@ export default (router) => {
 
   router.get(ROUTES.FILE_DOWNLOAD, async (req, res) => {
     const { fileId } = req.params;
-    const userId = req.body.userId; // TODO: get from token
+    // const userId = req.body.userId; // TODO: ?
 
     console.log(`${ROUTES.FILE_DOWNLOAD} called`);
     console.log("fileId", fileId);
@@ -73,6 +73,17 @@ export default (router) => {
       console.error(err);
       res.status(500).send({ error: "Something went wrong" });
     }
+  });
+  // TODO: Remove this route after testing
+  router.get(ROUTES.FILES_CHECKOUT, async (req, res) => {
+    console.log(`${ROUTES.FILES_CHECKOUT} called`);
+    res.send({
+      message: "Files checkout!!!",
+      headers: req.headers, // Request headers
+      body: req.body, // Request body (if any)
+      params: req.params, // URL parameters
+      query: req.query, // Query string parameters
+    });
   });
 
   // TODO: POST - upload thumbnails for a file

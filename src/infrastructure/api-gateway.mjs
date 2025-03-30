@@ -31,7 +31,7 @@ export class ApiStack extends cdk.Stack {
         maxAge: cdk.Duration.hours(1),
       },
     });
-    const authorizer = new apigatewayv2.CfnAuthorizer(
+    const httpApiAuthorizer = new apigatewayv2.CfnAuthorizer(
       this,
       "CognitoAuthorizer",
       {
@@ -60,8 +60,11 @@ export class ApiStack extends cdk.Stack {
       `${SERVICE}-ApiGatewayAuthorizerIdCognitoParameter`,
       {
         parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/api_gateway_authorizer_id_cognito`,
-        stringValue: authorizer.ref,
+        stringValue: httpApiAuthorizer.authorizerId, // TODO: verify
       }
     );
+    // TODO: HTTP API URL
+    // stringValue: `https://${USE_DOMAIN ? httpApiDomains[0] : this.httpApiDistribution.domainName}`
+    // httpApiDistribution == CF distribution
   }
 }

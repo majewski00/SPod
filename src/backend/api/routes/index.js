@@ -1,5 +1,5 @@
-import filesRoutes from "./files.js";
-import foldersRoutes from "./folders.js";
+import filesRoutes from "./files";
+import foldersRoutes from "./folders";
 
 export default (router) => {
   filesRoutes(router);
