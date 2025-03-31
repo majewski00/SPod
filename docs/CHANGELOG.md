@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.23 - 2025-03-31
+
+### Added
+
+- `apiHandlers` to facilitate adding attaching valid token, building URL, and parsing response
+- `services/api/` to hold predefined functions for every API endpoint (`services/api/files.js` and `services/api/folders.js`)
+
+### Fixed
+
+- missing `COGNITO_USER_POOL_ID` env variable in `api/serverless.yml`
+
 ## 0.0.22 - 2025-03-31
 
 ### Changed

@@ -58,6 +58,7 @@ functions:
     environment:
       DYNAMODB_TABLE_NAME: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/dynamodb_table_name}
       S3_STORAGE_BUCKET_NAME: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/s3_storage_bucket_name}
+      COGNITO_USER_POOL_ID: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/user_pool_id}
     events:
       - httpApi:
           method: GET
