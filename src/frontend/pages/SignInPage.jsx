@@ -43,6 +43,23 @@ const SignInPage = () => {
                 initialState="signIn"
                 components={components}
                 socialProviders={['google', 'facebook', 'amazon']}
+                formFields={{
+                    signUp: {
+                        email: {
+                            label: 'Email',
+                            placeholder: 'Enter your email',
+                            isRequired: true,
+                            order: 1
+                        },
+                        name: {
+                            label: 'Full Name',
+                            placeholder: 'Enter your full name',
+                            isRequired: true,
+                            order: 2
+                        }
+                    }
+                }}
+                loginMechanisms={['email']}
             />
         </View>
     );

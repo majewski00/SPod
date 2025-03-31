@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.22 - 2025-03-31
+
+### Changed
+
+- Structure of `src/frontend` to align with standards
+- Default values in Amplify "Create Account" are *Email* and *Full Name*
+- Removed *Username* field in Amplify "Create Account"
+- Experiment with URL structure "/auth/" and "/home/"
+
+### Fixed
+
+- Added `alias` field in `vite.config.js` to properly find `index.html` and `app.jsx`
+
 ## 0.0.21 - 2025-03-31
 
 ### Added
