@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.21 - 2025-03-31
+
+### Added
+
+- add "cognito-express" to `backend/api/app.js` to (again) validate user and extract user info into *res.locals.user*
+
 ## 0.0.20 - 2025-03-30
 
 ### Changed

@@ -1,6 +1,6 @@
 {
   "name": "spod",
-  "version": "0.0.19",
+  "version": "0.0.21",
   "scripts": {
     "start": "source ./local-vars.sh && npm-run-all -p 'local:*'",
     "local:backend": "cd src/backend/api && sls offline",
@@ -20,6 +20,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.4.4",
     "aws-amplify": "^6.12.2",
+    "cognito-express": "^3.0.4",
     "constructs": "^10.4.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",

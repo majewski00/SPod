@@ -1,4 +1,5 @@
 import express from "express";
+import CognitoExpress from "cognito-express";
 import helmet from "helmet";
 import noCache from "nocache";
 import cors from "cors";
@@ -21,6 +22,29 @@ router.use(
     origin: origins,
   })
 );
+
+// TODO: X-Origin-Verify (+ API Gateway conf)
+
+const cognitoExpress = new CognitoExpress({
+  region: process.env.AWS_REGION,
+  cognitoUserPoolId: process.env.COGNITO_USER_POOL_ID,
+  tokenUse: "id",
+});
+
+router.use((req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    return res.status(401).send("Unauthorized: No token provided");
+  }
+
+  cognitoExpress.validate(token, (err, response) => {
+    if (err) {
+      return res.status(401).send("Unauthorized: Invalid token");
+    }
+    res.locals.user = response;
+    next();
+  });
+});
 
 routes(router);
 
