@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.25 - 2025-04-02
+
+### Added
+
+- General `useAsync.js` hook
+- `useDashBoardData.js` hook for Home Page
+- Minimal `HomePage.jsx` for initial testings
+
+### Changed
+
+- Updated `routes/index.jsx` to implement routes, apply new HomePage, and remove comments
+
 ## 0.0.24 - 2025-04-02
 
 ### Added
