@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 /**
  * Custom hook for handling asynchronous operations with loading, error, and data states
@@ -12,23 +12,26 @@ export function useAsync(asyncFunction, immediate = true, dependencies = []) {
   const [loading, setLoading] = useState(immediate);
   const [error, setError] = useState(null);
 
-  const execute = useCallback(
-    async (...args) => {
-      try {
-        setLoading(true);
-        setError(null);
-        const result = await asyncFunction(...args);
-        setData(result);
-        return result;
-      } catch (err) {
-        setError(err);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [asyncFunction]
-  );
+  const asyncFunctionRef = useRef(asyncFunction);
+
+  useEffect(() => {
+    asyncFunctionRef.current = asyncFunction;
+  }, [asyncFunction]);
+
+  const execute = useCallback(async (...args) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await asyncFunctionRef.current(...args);
+      setData(result);
+      return result;
+    } catch (err) {
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (immediate) {

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.27 - 2025-04-02
+
+### Fixed
+
+- use `useRef` in `useAsync.js` to avoid re-rendering at every frame
+- correct how "idToken" is extracted from `fetchAuthSession` in `apiHandlers.js` 
+
 ## 0.0.26 - 2025-04-02
 
 ### Added

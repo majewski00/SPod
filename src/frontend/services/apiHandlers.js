@@ -20,8 +20,8 @@ async function getAccessToken() {
   if (isTokenExpired) {
     try {
       console.log("Fetching new access token...");
-      const { idToken } = await fetchAuthSession({ forceRefresh: true });
-
+      const { idToken } =
+        (await fetchAuthSession({ forceRefresh: true })).tokens || {};
       accessToken = idToken ? idToken.toString() : null;
       tokenFetchTime = now;
     } catch (error) {
