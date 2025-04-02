@@ -4,6 +4,7 @@ import {BrowserRouter} from 'react-router-dom'
 import {Amplify} from 'aws-amplify'
 import {Authenticator, View} from '@aws-amplify/ui-react'
 import AppRoutes from "./routes";
+import './styles/global.css'
 
 
 const urls = ["http://localhost:4000"]

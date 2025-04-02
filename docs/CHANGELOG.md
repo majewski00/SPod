@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.26 - 2025-04-02
+
+### Added
+
+- `styles/global.css`
+- import css file in `main.jsx`
+- "constants" alias, "VITE_API_BASE_URL" definition in `vite.config.js`
+
+### Fixed
+
+- Return null instead of HTML text from `handleResponse` in `apiHandlers.js`
+- proxy in `vite.config.js` to redirect api calls to port 3000
+
 ## 0.0.25 - 2025-04-02
 
 ### Added

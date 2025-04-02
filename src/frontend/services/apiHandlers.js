@@ -19,7 +19,8 @@ async function getAccessToken() {
 
   if (isTokenExpired) {
     try {
-      const { idToken } = await fetchAuthSession((forceRefresh = true));
+      console.log("Fetching new access token...");
+      const { idToken } = await fetchAuthSession({ forceRefresh: true });
 
       accessToken = idToken ? idToken.toString() : null;
       tokenFetchTime = now;
@@ -103,7 +104,20 @@ async function handleResponse(response, { isText = false } = {}) {
   if (contentType?.includes("application/json")) {
     return response.json();
   }
-  return response.text();
+
+  // Check if the response is likely HTML (to avoid returning HTML as data)
+  const text = await response.text();
+  if (
+    text.trim().startsWith("<!DOCTYPE html>") ||
+    text.trim().startsWith("<html")
+  ) {
+    console.error(
+      "Received HTML response instead of expected data format:",
+      text.substring(0, 100) + "..."
+    );
+    return null;
+  }
+  return text;
 }
 
 /**
