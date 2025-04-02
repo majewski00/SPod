@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.24 - 2025-04-02
+
+### Added
+
+- Minimal PoC of HomePage
+- Feature components like: `ActivityFeed.jsx`, `QuickAccess.jsx`, `RecentFiles.jsx`, etc.
+- Layout components like: `Header.jsx` and `Navigation.jsx`
+
 ## 0.0.23 - 2025-03-31
 
 ### Added
