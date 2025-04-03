@@ -15,12 +15,13 @@ export default (router) => {
   router.post(ROUTES.FILE_UPLOAD, async (req, res) => {
     const maxFileSize = 10485760; // TODO: Move to environment variable and validate this number to avoid multipart uploads
     if (fileSize > maxFileSize) {
-      return res.status(400).send({ error: "File size exceeds limit" });
+      return res.status(413).send({ error: "File size exceeds limit" });
     }
     const fileId = randomUUID();
+    const timestamp = new Date().toISOString();
 
     console.log(
-      `${ROUTES.FILE_UPLOAD} called\nfileId: ${fileId}\nuserId: ${req.body.userId}`
+      `${ROUTES.FILE_UPLOAD} called\nfileId: ${fileId}\nUser: ${res.locals.user.name}`
     );
 
     try {
@@ -28,22 +29,27 @@ export default (router) => {
         new PutItemCommand({
           TableName: process.env.DYNAMODB_TABLE_NAME,
           Item: {
-            PK: { S: `USER#${req.body.userId}` }, // TODO: ????
-            SK: { S: `FOLDER#${req.body.parentId}#FILE#${fileId}` },
-            fileName: { S: req.body.fileName },
-            fileId: { S: fileId },
+            PK: { S: `USER#${res.locals.user.sub}` },
+            SK: { S: `ID#${fileId}#TYPE#file` },
+            GSI1PK: {
+              S: `USER#${res.locals.user.sub}#IN#${req.body.parentId}`,
+            },
+            GSI1SK: { S: `UPDATED#${timestamp}#TYPE#file` },
+            userId: { S: res.locals.user.sub },
+            itemName: { S: req.body.fileName },
+            itemId: { S: fileId },
             parentId: { S: req.body.parentId },
-            fileType: { S: req.body.fileType },
-            fileSize: { N: req.body.fileSize.toString() },
-            createdAt: { S: new Date().toISOString() },
-            updatedAt: { S: new Date().toISOString() },
+            itemType: { S: req.body.fileType },
+            itemSize: { N: req.body.fileSize.toString() },
+            createdAt: { S: timestamp },
+            updatedAt: { S: timestamp },
           },
         })
       );
 
       res.send(
         await generateUploadURL({
-          userId: req.body.userId,
+          userId: res.locals.user.sub,
           fileId: fileId,
           fileType: req.body.fileType,
           fileSize: req.body.fileSize,
@@ -57,15 +63,14 @@ export default (router) => {
 
   router.get(ROUTES.FILE_DOWNLOAD, async (req, res) => {
     const { fileId } = req.params;
-    // const userId = req.body.userId; // TODO: ?
 
     console.log(`${ROUTES.FILE_DOWNLOAD} called`);
     console.log("fileId", fileId);
-    console.log("userId", userId);
+    console.log("user", res.locals.user.name);
 
     try {
       const downloadURL = await generateDownloadURL({
-        userId: userId,
+        userId: res.locals.user.sub,
         fileId: fileId,
       });
       res.send(downloadURL);
@@ -74,17 +79,5 @@ export default (router) => {
       res.status(500).send({ error: "Something went wrong" });
     }
   });
-  // TODO: Remove this route after testing
-  router.get(ROUTES.FILES_CHECKOUT, async (req, res) => {
-    console.log(`${ROUTES.FILES_CHECKOUT} called`);
-    res.send({
-      message: "Files checkout!!!",
-      headers: req.headers, // Request headers
-      body: req.body, // Request body (if any)
-      params: req.params, // URL parameters
-      query: req.query, // Query string parameters
-    });
-  });
-
   // TODO: POST - upload thumbnails for a file
 };

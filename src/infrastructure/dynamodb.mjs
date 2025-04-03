@@ -26,6 +26,19 @@ export class DynamoDBStack extends cdk.Stack {
       deletionProtection: true,
     });
 
+    dynamoDBTable.addGlobalSecondaryIndex({
+      indexName: "GSI1",
+      partitionKey: {
+        name: "GSI1PK",
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: "GSI1SK",
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     new ssm.StringParameter(this, `${SERVICE}-DynamoDBTableNameParameter`, {
       parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/dynamodb_table_name`,
       stringValue: dynamoDBTable.tableName,

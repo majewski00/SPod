@@ -18,7 +18,7 @@ export const generateUploadURL = async ({
   const key = `users/${userId}/${fileId}`;
 
   const command = new PutObjectCommand({
-    Bucket: process.env.bucketName, // TODO: bucketName
+    Bucket: process.env.S3_STORAGE_BUCKET_NAME,
     Key: key,
     ContentType: fileType,
     ContentLength: fileSize,
@@ -36,7 +36,7 @@ export const generateDownloadURL = async ({ userId, fileId }) => {
   const key = `users/${userId}/${fileId}`;
 
   const command = new GetObjectCommand({
-    Bucket: process.env.bucketName, // TODO: bucketName
+    Bucket: process.env.S3_STORAGE_BUCKET_NAME,
     Key: key,
   });
 

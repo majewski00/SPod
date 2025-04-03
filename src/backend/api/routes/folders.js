@@ -4,6 +4,7 @@ import {
   QueryCommand,
 } from "@aws-sdk/client-dynamodb";
 import * as ROUTES from "constants/routes";
+import { randomUUID } from "crypto";
 
 const ddb = new DynamoDBClient({
   region: process.env.AWS_REGION,
@@ -12,9 +13,10 @@ const ddb = new DynamoDBClient({
 export default (router) => {
   router.post(ROUTES.FOLDER_CREATE, async (req, res) => {
     const folderId = randomUUID();
+    const timestamp = new Date().toISOString();
 
     console.log(
-      `${ROUTES.FOLDER_CREATE} called\nfolderId: ${folderId}\nuserId: ${req.body.userId}`
+      `${ROUTES.FOLDER_CREATE} called\nfolderId: ${folderId}\nUser: ${res.locals.user.name}`
     );
 
     try {
@@ -22,13 +24,20 @@ export default (router) => {
         new PutItemCommand({
           TableName: process.env.DYNAMODB_TABLE_NAME,
           Item: {
-            PK: { S: `USER#${req.body.userId}` },
-            SK: { S: `FOLDER#${folderId}` }, // TODO: Maybe there should be a parentId here
-            folderName: { S: req.body.folderName },
-            folderId: { S: folderId },
+            PK: { S: `USER#${res.locals.user.sub}` },
+            SK: { S: `ID#${folderId}#TYPE#folder` },
+            GSI1PK: {
+              S: `USER#${res.locals.user.sub}#IN#${req.body.parentId}`,
+            },
+            GSI1SK: { S: `UPDATED#${timestamp}#TYPE#folder` },
+            userId: { S: res.locals.user.sub },
+            itemName: { S: req.body.folderName },
+            itemId: { S: folderId },
             parentId: { S: req.body.parentId },
-            createdAt: { S: new Date().toISOString() },
-            updatedAt: { S: new Date().toISOString() },
+            itemType: { S: "folder" },
+            itemSize: { N: "0" },
+            createdAt: { S: timestamp },
+            updatedAt: { S: timestamp },
           },
         })
       );
@@ -44,19 +53,18 @@ export default (router) => {
 
   router.get(ROUTES.FOLDER_LIST_ITEMS, async (req, res) => {
     const { folderId } = req.params;
-    const userId = req.body.userId; // TODO: get from token
 
     console.log(
-      `${ROUTES.FOLDER_LIST_ITEMS} called\nfolderId: ${folderId}\nuserId: ${userId}`
+      `${ROUTES.FOLDER_LIST_ITEMS} called\nfolderId: ${folderId}\nUser: ${res.locals.user.name}`
     );
 
     try {
       const params = {
         TableName: process.env.DYNAMODB_TABLE_NAME,
-        KeyConditionExpression: "PK = :pk and begins_with(SK, :sk)",
+        IndexName: "GSI1",
+        KeyConditionExpression: "GSI1PK = :gsi1pk",
         ExpressionAttributeValues: {
-          ":pk": { S: `USER#${userId}` },
-          ":sk": { S: `FOLDER#${folderId}` }, // TODO: This won't list folders inside the folder
+          ":gsi1pk": { S: `USER#${res.locals.user.sub}#IN#${folderId}` },
         },
       };
       const data = await ddb.send(new QueryCommand(params));
@@ -70,10 +78,10 @@ export default (router) => {
   router.get(ROUTES.FOLDER_THUMBNAILS, async (req, res) => {
     const { folderId } = req.params;
     const { limit = 10, nextToken } = req.query;
-    const userId = req.body.userId; // TODO: get from token
+    // TODO: implement POST method to upload thumbnail
 
     console.log(
-      `${ROUTES.FOLDER_THUMBNAILS} called\nfolderId: ${folderId}\nuserId: ${userId}\npage: ${page}\nlimit: ${limit}`
+      `${ROUTES.FOLDER_THUMBNAILS} called\nfolderId: ${folderId}\nUser: ${res.locals.user.name}\nlimit: ${limit}`
     );
 
     try {
@@ -88,13 +96,14 @@ export default (router) => {
       };
 
       if (nextToken) {
-        params.ExclusiveStartKey = nextToken; // TODO: Decode (JWT ??)
+        params.ExclusiveStartKey = nextToken; // TODO: Decode
       }
 
       const data = await ddb.send(new QueryCommand(params));
       const items = data.Items.map((item) => ({
         fileId: item.fileId.S, // ? Should return more metadata?
         thumbnailUrl: `https://s3.amazonaws.com/${process.env.S3_STORAGE_BUCKET_NAME}/users/${userId}/thumbnails/${item.fileId.S}`,
+        // TODO: they will probably have public access blocked!!
       }));
 
       res.send({

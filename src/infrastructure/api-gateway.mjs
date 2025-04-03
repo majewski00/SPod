@@ -60,7 +60,7 @@ export class ApiStack extends cdk.Stack {
       `${SERVICE}-ApiGatewayAuthorizerIdCognitoParameter`,
       {
         parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/api_gateway_authorizer_id_cognito`,
-        stringValue: httpApiAuthorizer.authorizerId, // TODO: verify
+        stringValue: httpApiAuthorizer.ref,
       }
     );
     // TODO: HTTP API URL
