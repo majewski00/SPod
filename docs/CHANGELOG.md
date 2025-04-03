@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.28 - 2025-04-03
+
+### Added
+
+- "Global Secondary Index" ("GSI") in DDB to enhance key structure
+
+### Changed
+
+- DDB structure in `/api/files.js` and `/api/folders.js` to utilize GSI
+
+### Fixed
+
+- correctly reference userID (*res.locals.user.sub*) in backend
+- Rollback from version "0.0.20": *authorizer.ref* <-- authorizerId
+- correct env variable "S3_STORAGE_BUCKET_NAME" in `/helpers/s3-signed-url.js`
+
 ## 0.0.27 - 2025-04-02
 
 ### Fixed
