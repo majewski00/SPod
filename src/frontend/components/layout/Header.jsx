@@ -1,15 +1,16 @@
 import React from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
+import { useUserAttributes } from "../../hooks/useUserAttributes";
 
 /**
  * Header component for the application
  * Contains logo, search bar, and user profile menu
  */
 const Header = () => {
-  const { user, signOut } = useAuthenticator((context) => [
-    context.user,
+  const { signOut } = useAuthenticator((context) => [
     context.signOut,
   ]);
+  const { getUserFullName, getNameInitial } = useUserAttributes();
 
   return (
     <header className="app-header">
@@ -37,9 +38,9 @@ const Header = () => {
         <div className="profile-dropdown">
           <div className="profile-trigger">
             <div className="avatar">
-              {user?.username.charAt(0) || "U"}
+              {getNameInitial()}
             </div>
-            <span className="username">{user?.username || "User"}</span>
+            <span className="username">{getUserFullName()}</span>
           </div>
           
           <div className="dropdown-menu">

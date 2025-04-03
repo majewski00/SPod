@@ -1,14 +1,14 @@
 import { useAsync } from "./useAsync";
 import { useState, useEffect } from "react";
 import { listItems, getThumbnails } from "../services/api/folders";
-import { useAuthenticator } from "@aws-amplify/ui-react";
+import { useUserAttributes } from "./useUserAttributes";
 
 /**
  * Custom hook for fetching dashboard data
  * @returns {Object} Object containing dashboard data and loading states
  */
 export function useDashboardData() {
-  const { user } = useAuthenticator((context) => [context.user]);
+  const { getUserFullName } = useUserAttributes();
 
   // Fetch root folder items
   const {
@@ -94,7 +94,7 @@ export function useDashboardData() {
   //   },
   // };
   return {
-    userName: user?.username || "User",
+    userName: getUserFullName(),
     rootItems: Array.isArray(rootItems) ? rootItems : [],
     recentFiles: [],
     storageStats,

@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.0.29 - 2025-04-03
+
+### Added
+
+- Dedicated hook to fetch user attributes using `fetchUserAttributes` in `/hooks/useUserAttributes.js`
+
+### Changed
+
+- Use new `useUserAttributes` in `useDashboardData` and `/layout/Header.jsx`
+
 ## 0.0.28 - 2025-04-03
 
 ### Added
