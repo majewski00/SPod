@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.1.0 - 2025-04-03
+
+### Added
+
+- Include "Menu" button in `Header.jsx` to interact with *Navigation Drawer*
+- `contexts/FolderContext.jsx` to interact with currently opened folder
+
+### Changed
+
+- Redesign `Header.jsx`
+- Total redesign of `Navigation.jsx` with animated drawer functionality
+- finally activated Prettier for jsx extension (main.jsx)
+
+### Fixed
+
+- Use `switch` syntax in `routes/index.jsx` to avoid issues with routes ("/home/*" was being redirected back to home)
+
 ## 0.0.29 - 2025-04-03
 
 ### Added

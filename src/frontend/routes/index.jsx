@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoaderPage from "../pages/LoaderPage";
+import { FolderProvider } from "../contexts/FolderContext";
 
 // Lazy load the page components
 const LoginPage = lazy(() => import("../pages/SignInPage"));
@@ -12,28 +13,34 @@ const AppRoutes = () => {
     return [context.authStatus];
   });
 
-  return (
-    <Suspense fallback={<LoaderPage />}>
-      <Routes>
-        {authStatus === "authenticated" ? (
-          <>
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/files" element={<HomePage />} />
-            <Route path="/files/:folderId" element={<HomePage />} />
-            <Route path="/recent" element={<HomePage />} />
-            <Route path="/shared" element={<HomePage />} />
-            <Route path="/trash" element={<HomePage />} />
-            <Route path="*" element={<Navigate to="/home" replace />} />
-          </>
-        ) : (
-          <>
+  switch (authStatus) {
+    case "configuring":
+      // return <LoaderPage />;
+      break;
+    case "authenticated":
+      return (
+        // <Suspense fallback={<LoaderPage />}>
+          <FolderProvider>
+            <Routes>
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/home/*" element={<HomePage />} />
+              <Route path="*" element={<Navigate to="/home" replace />} />
+            </Routes>
+          </FolderProvider>
+        // </Suspense>
+      )
+    case "unauthenticated":
+      return (
+        <Suspense fallback={<LoaderPage />}>
+          <Routes>
             <Route path="/auth" element={<LoginPage />} />
             <Route path="*" element={<Navigate to="/auth" replace />} />
-          </>
-        )}
-      </Routes>
-    </Suspense>
-  );
+          </Routes>
+        </Suspense>
+      )
+    default:
+      break;
+  }
 };
 
 export default AppRoutes;
