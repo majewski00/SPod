@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.1.1 - 2025-04-03
+
+### Added
+
+- salient feature `RecentItems.jsx` (prev. `RecentFiles.jsx`) complete redesign to correctly display all files and folders (including sorting, data conversion, selection of files)
+- Hook to retrieve items in given folder `useRetrieveItems.js`
+- Common component `ItemActions.jsx` with **Upload** and **Create folder** buttons
+
+### Changed
+
+- Remove files that do not reflect on end goal: `ActivityFeed.jsx`, `QuickAccess.jsx`, `QuickStats.jsx`
+- Remove `useDashboardData.js` -||-
+
 ## 0.1.0 - 2025-04-03
 
 ### Added
