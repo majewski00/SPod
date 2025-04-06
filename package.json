@@ -1,9 +1,9 @@
 {
   "name": "spod",
-  "version": "0.0.21",
+  "version": "0.1.3",
   "scripts": {
     "start": "source ./local-vars.sh && npm-run-all -p 'local:*'",
-    "local:backend": "cd src/backend/api && sls offline",
+    "local:backend": "cd src/backend/api && sls offline -t",
     "local:frontend": "cd src/frontend && source ./frontend-vars.sh && vite dev",
     "deploy": "source ./deploy.sh",
     "destroy": "source ./destroy.sh",
@@ -18,7 +18,8 @@
     "@codegenie/serverless-express": "^4.16.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@mui/material": "^6.4.4",
+    "@mui/icons-material": "^7.0.1",
+    "@mui/material": "^7.0.1",
     "aws-amplify": "^6.12.2",
     "cognito-express": "^3.0.4",
     "constructs": "^10.4.2",

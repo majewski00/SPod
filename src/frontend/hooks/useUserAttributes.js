@@ -11,23 +11,28 @@ export function useUserAttributes() {
   const [attributes, setAttributes] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userAttributesReady, setUserAttributesReady] = useState(false);
 
   useEffect(() => {
     async function loadUserAttributes() {
       if (!user) {
         setAttributes(null);
         setLoading(false);
+        setUserAttributesReady(false);
         return;
       }
 
       try {
         setLoading(true);
+        setUserAttributesReady(false);
         const userAttributes = await fetchUserAttributes();
         setAttributes(userAttributes);
         setError(null);
+        setUserAttributesReady(true);
       } catch (err) {
         console.error("Error fetching user attributes:", err);
         setError(err);
+        setUserAttributesReady(false);
       } finally {
         setLoading(false);
       }
@@ -54,6 +59,7 @@ export function useUserAttributes() {
     attributes,
     loading,
     error,
+    userAttributesReady,
     getUserFullName,
     getNameInitial,
   };

@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.1.3 - 2025-04-06
+
+### Added
+
+- Light animation of welcoming message `HelloUser.jsx` with wait dependency on ready attributes (`useUserAttributes.js`)
+
+### Changed
+
+- Redesign of `HomePage.jsx` to use new features and MUI components
+- `userAttributesReady` in `useUserAttributes.js` hook to avoid displaying "Loading..." message
+
 ## 0.1.2 - 2025-04-06
 
 ### Added
