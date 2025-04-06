@@ -1,10 +1,16 @@
 import * as ROUTES from "constants/routes";
 import { getJson, postJson } from "../apiHandlers";
 
-export const uploadFile = (parentId, fileName, fileType, fileSize) =>
+export const uploadFile = (parentId, fileName, fileType, fileSize, itemPath) =>
   postJson(
     ROUTES.FILE_UPLOAD,
-    { parentId, fileName, fileType, fileSize },
+    {
+      parentId,
+      fileName,
+      fileType,
+      fileSize,
+      itemPath: encodeURIComponent(itemPath),
+    },
     {},
     { cacheBust: true }
   );

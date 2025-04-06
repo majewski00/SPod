@@ -12,12 +12,10 @@ const ddb = new DynamoDBClient({
 
 export default (router) => {
   router.post(ROUTES.FOLDER_CREATE, async (req, res) => {
+    const itemPath = decodeURIComponent(req.body.itemPath);
+
     const folderId = randomUUID();
     const timestamp = new Date().toISOString();
-
-    console.log(
-      `${ROUTES.FOLDER_CREATE} called\nfolderId: ${folderId}\nUser: ${res.locals.user.name}`
-    );
 
     try {
       await ddb.send(
@@ -29,20 +27,18 @@ export default (router) => {
             GSI1PK: {
               S: `USER#${res.locals.user.sub}#IN#${req.body.parentId}`,
             },
-            GSI1SK: { S: `UPDATED#${timestamp}#TYPE#folder` },
+            GSI1SK: { S: `PATH#${itemPath}` },
             userId: { S: res.locals.user.sub },
             itemName: { S: req.body.folderName },
             itemId: { S: folderId },
             parentId: { S: req.body.parentId },
+            itemPath: { S: itemPath },
             itemType: { S: "folder" },
             itemSize: { N: "0" },
             createdAt: { S: timestamp },
             updatedAt: { S: timestamp },
           },
         })
-      );
-      console.log(
-        `Folder created successfully with ID: ${folderId}, parentId: ${req.body.parentId}`
       );
       res.send({ folderId });
     } catch (err) {
@@ -67,8 +63,26 @@ export default (router) => {
           ":gsi1pk": { S: `USER#${res.locals.user.sub}#IN#${folderId}` },
         },
       };
-      const data = await ddb.send(new QueryCommand(params));
-      res.send(data.Items);
+      res.send((await ddb.send(new QueryCommand(params))).Items);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({ error: "Something went wrong" });
+    }
+  });
+
+  router.get(ROUTES.FOLDER_FIND, async (req, res) => {
+    const folderPath = decodeURIComponent(req.params.folderPath);
+
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      IndexName: "GSI1",
+      KeyConditionExpression: "GSI1SK = :gsi1sk",
+      ExpressionAttributeValues: {
+        ":gsi1sk": { S: `PATH#${folderPath}` },
+      },
+    };
+    try {
+      res.send((await ddb.send(new QueryCommand(params))).Items);
     } catch (err) {
       console.error(err);
       res.status(500).send({ error: "Something went wrong" });

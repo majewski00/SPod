@@ -4,7 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## 0.1.1 - 2025-04-03
+## 0.1.2 - 2025-04-06
+
+### Added
+
+- `CreateFolderModal.jsx` to query a folder name from the user upon creation
+- API route "FOLDER_FIND" that will helpfully help resolve **TODO** from `FolderContext.jsx`
+
+### Changed
+
+- Redesign DDB GSI key structure
+- Encode and decode "itemPath" passed to API
+
+## 0.1.1 - 2025-04-06
 
 ### Added
 
@@ -17,7 +29,7 @@ All notable changes to this project will be documented in this file.
 - Remove files that do not reflect on end goal: `ActivityFeed.jsx`, `QuickAccess.jsx`, `QuickStats.jsx`
 - Remove `useDashboardData.js` -||-
 
-## 0.1.0 - 2025-04-03
+## 0.1.0 - 2025-04-05
 
 ### Added
 

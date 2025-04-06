@@ -17,6 +17,8 @@ export default (router) => {
     if (fileSize > maxFileSize) {
       return res.status(413).send({ error: "File size exceeds limit" });
     }
+    const itemPath = decodeURIComponent(req.body.itemPath);
+
     const fileId = randomUUID();
     const timestamp = new Date().toISOString();
 
@@ -34,11 +36,12 @@ export default (router) => {
             GSI1PK: {
               S: `USER#${res.locals.user.sub}#IN#${req.body.parentId}`,
             },
-            GSI1SK: { S: `UPDATED#${timestamp}#TYPE#file` },
+            GSI1SK: { S: `PATH#${itemPath}` },
             userId: { S: res.locals.user.sub },
             itemName: { S: req.body.fileName },
             itemId: { S: fileId },
             parentId: { S: req.body.parentId },
+            itemPath: { S: itemPath },
             itemType: { S: req.body.fileType },
             itemSize: { N: req.body.fileSize.toString() },
             createdAt: { S: timestamp },
