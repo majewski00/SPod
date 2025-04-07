@@ -7,7 +7,7 @@ import {
   drawerWidthCollapsed,
   drawerWidthExpanded,
 } from "../components/layout/Navigation";
-import RecentFiles from "../components/feature/RecentFiles";
+import ItemListView from "../components/feature/ItemListView";
 import ItemActions from "../components/common/ItemActions";
 import CreateFolderModal from "../components/common/CreateFolderModal";
 import { useUserAttributes } from "../hooks/useUserAttributes";
@@ -106,7 +106,7 @@ const HomePage = () => {
                     "There was an error loading your dashboard data."}
                 </Box>
               </Box>
-              <Button variant="contained" color="primary" onClick={reload}>
+              <Button variant="contained" color="secondary" onClick={reload}>
                 Retry
               </Button>
               <Button variant="outlined" color="secondary" onClick={signOut}>
@@ -126,7 +126,7 @@ const HomePage = () => {
           />
 
           <Box sx={{ mt: 3 }}>
-            <RecentFiles items={items} loading={loading} />
+            <ItemListView items={items} loading={loading} />
           </Box>
         </Box>
       </Box>

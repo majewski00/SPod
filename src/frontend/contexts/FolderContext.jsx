@@ -3,52 +3,86 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { createFolder, findFolder } from "../services/api/folders";
 
 const FolderContext = createContext();
+const rootFolderDefault = {
+  id: "root",
+  name: "All Files",
+  path: "home",
+};
 
 export function FolderProvider({ children }) {
-  const rootFolderDefault = {
-    id: "root",
-    name: "Home",
-    path: "home",
-  };
   const [currentFolder, setCurrentFolder] = useState(rootFolderDefault);
-  const [breadcrumbs, setBreadcrumbs] = useState([
-    { id: "root", name: "Home", path: "/" },
-  ]);
+  const [breadcrumbs, setBreadcrumbs] = useState(() => {
+    const { id, ...rootFolderWithoutId } = rootFolderDefault;
+    return [rootFolderWithoutId];
+  });
+  const [error, setError] = useState(null);
+
+  const setCurrentLocation = ({ id, name, path }) => {
+    setCurrentFolder({ id, name, path });
+
+    const pathSegments = path.split("/");
+    const newBreadcrumbs = [];
+    let currentPath = "";
+
+    for (let i = 0; i < pathSegments.length - 1; i++) {
+      currentPath = currentPath
+        ? `${currentPath}/${pathSegments[i]}`
+        : pathSegments[i];
+      newBreadcrumbs.push({
+        name: i === 0 ? rootFolderDefault.name : pathSegments[i],
+        path: currentPath,
+      });
+    }
+
+    setBreadcrumbs(newBreadcrumbs);
+  };
+
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // const location = useLocation();
-  // useEffect(() => {
-  //   if (!location.pathname.startsWith("/home")) {
-  //     return;
-  //   }
+  useEffect(() => {
+    const stripedPath = location.pathname.substring(1);
+    if (!stripedPath.startsWith(rootFolderDefault.path)) {
+      return;
+    }
 
-  //   if (location.pathname === "/home") {
-  //     setCurrentFolder(rootFolderDefault);
-  //     return;
-  //   }
-  //   const match = location.pathname.match(/\/home\/(.+?)\/?$/);
-  //   const folderNameFromUrl = match ? match[1].split("/").pop() : null;
+    if (stripedPath === rootFolderDefault.path) {
+      setCurrentLocation(rootFolderDefault);
+      return;
+    }
 
-  //   if (folderNameFromUrl !== currentFolder.name) {
-  //     fetchFolderDetails(folderNameFromUrl);
-  //   }
-  // // ! If names are not unique, how could we find correct folder by its name
-  // }, [location.pathname]);
-  // const fetchFolderDetails = async (folderName) => {
-  //   try {
-  //     const folderData = await collectFolderInfo(folderName);
-  //     setCurrentFolder({
-  //       id: folderData.itemId,
-  //       name: folderData.itemName,
-  //       path: folderData.itemPath,
-  //     });
-  //     // TODO: (later on) if collected all folders, then creating breadcrumbs is easy
-  //   } catch (error) {
-  //   }
-  // };
+    fetchFolderDetails(stripedPath);
+  }, [location.pathname]);
+
+  const fetchFolderDetails = async (folderPath) => {
+    try {
+      const folderData = await findFolder(folderPath); // TODO: handle error if folder not found
+      setCurrentLocation({
+        id: folderData.itemId.S,
+        name: folderData.itemName.S,
+        path: folderData.itemPath.S,
+      });
+    } catch (error) {
+      console.error("Error fetching folder details:", error);
+    }
+  };
 
   const navigateToFolder = (folderId, folderName, folderPath) => {
-    setCurrentFolder({ id: folderId, name: folderName, path: folderPath });
+    if (!folderId && !folderName && !folderPath) {
+      setError("At least folderPath is required to navigate to a folder.");
+      return;
+    }
+
+    if (!folderId || !folderName) {
+      if (folderPath === rootFolderDefault.path) {
+        setCurrentLocation(rootFolderDefault);
+      } else {
+        fetchFolderDetails(folderPath);
+      }
+    } else {
+      setCurrentLocation({ id: folderId, name: folderName, path: folderPath });
+    }
+
     navigate(folderPath);
   };
 

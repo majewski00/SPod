@@ -22,12 +22,12 @@ export default (router) => {
         new PutItemCommand({
           TableName: process.env.DYNAMODB_TABLE_NAME,
           Item: {
-            PK: { S: `USER#${res.locals.user.sub}` },
+            PK: { S: `USER#${res.locals.user.sub}#IN#${req.body.parentId}` },
             SK: { S: `ID#${folderId}#TYPE#folder` },
             GSI1PK: {
-              S: `USER#${res.locals.user.sub}#IN#${req.body.parentId}`,
+              S: `USER#${res.locals.user.sub}#PATH#${itemPath}`,
             },
-            GSI1SK: { S: `PATH#${itemPath}` },
+            GSI1SK: { S: `NAME#${req.body.folderName}` },
             userId: { S: res.locals.user.sub },
             itemName: { S: req.body.folderName },
             itemId: { S: folderId },
@@ -50,17 +50,12 @@ export default (router) => {
   router.get(ROUTES.FOLDER_LIST_ITEMS, async (req, res) => {
     const { folderId } = req.params;
 
-    console.log(
-      `${ROUTES.FOLDER_LIST_ITEMS} called\nfolderId: ${folderId}\nUser: ${res.locals.user.name}`
-    );
-
     try {
       const params = {
         TableName: process.env.DYNAMODB_TABLE_NAME,
-        IndexName: "GSI1",
-        KeyConditionExpression: "GSI1PK = :gsi1pk",
+        KeyConditionExpression: "PK = :pk",
         ExpressionAttributeValues: {
-          ":gsi1pk": { S: `USER#${res.locals.user.sub}#IN#${folderId}` },
+          ":pk": { S: `USER#${res.locals.user.sub}#IN#${folderId}` },
         },
       };
       res.send((await ddb.send(new QueryCommand(params))).Items);
@@ -76,13 +71,36 @@ export default (router) => {
     const params = {
       TableName: process.env.DYNAMODB_TABLE_NAME,
       IndexName: "GSI1",
-      KeyConditionExpression: "GSI1SK = :gsi1sk",
+      KeyConditionExpression: "GSI1PK = :gsi1pk",
       ExpressionAttributeValues: {
-        ":gsi1sk": { S: `PATH#${folderPath}` },
+        ":gsi1pk": { S: `USER#${res.locals.user.sub}#PATH#${folderPath}` },
       },
     };
     try {
-      res.send((await ddb.send(new QueryCommand(params))).Items);
+      const items = (await ddb.send(new QueryCommand(params))).Items;
+
+      if (!items || items.length === 0) {
+        console.warn(
+          `No items found for folderPath: ${folderPath}\nParams: ${JSON.stringify(
+            params,
+            null,
+            2
+          )}`
+        );
+        return res.status(404).send({ error: "No items found" });
+      }
+
+      if (items.length > 1) {
+        console.warn(
+          `Warning: More than one item found for folderPath: ${folderPath}`
+        );
+        return res.status(400).send({
+          warning: "Multiple items found",
+          items,
+        });
+      }
+
+      res.send(items[0]);
     } catch (err) {
       console.error(err);
       res.status(500).send({ error: "Something went wrong" });
@@ -101,7 +119,7 @@ export default (router) => {
     try {
       const params = {
         TableName: process.env.DYNAMODB_TABLE_NAME,
-        KeyConditionExpression: "PK = :pk and begins_with(SK, :sk)",
+        KeyConditionExpression: "PK = :pk and begins_with(SK, :sk)", // TODO: update
         ExpressionAttributeValues: {
           ":pk": { S: `USER#${userId}` },
           ":sk": { S: `FOLDER#${folderId}` },

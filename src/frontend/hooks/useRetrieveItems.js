@@ -12,9 +12,7 @@ export function useRetrieveItems() {
     loading: loadingItems,
     error: itemsError,
     execute: reloadItems,
-  } = useAsync(() => listItems(currentFolder.id), true, []);
-
-  console.log(`Items retrieved for folder ${currentFolder.name}:`, items);
+  } = useAsync(() => listItems(currentFolder.id), true, [currentFolder.id]);
 
   useEffect(() => {
     if (items === null && !loadingItems) {

@@ -25,14 +25,18 @@ import GridViewIcon from "@mui/icons-material/GridView";
 import DownloadIcon from "@mui/icons-material/Download";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useFolderContext } from "../../contexts/FolderContext";
+import Breadcrumbs from "./Breadcrumbs";
 
-const RecentFiles = ({ items, loading }) => {
+const ItemsListView = ({ items, loading }) => {
   const theme = useTheme();
   const [viewMode, setViewMode] = useState("list");
   const [sortField, setSortField] = useState("name");
   const [sortDirection, setSortDirection] = useState("asc");
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [hoveredRow, setHoveredRow] = useState(null);
+
+  const { currentFolder, navigateToFolder, breadcrumbs } = useFolderContext();
 
   const handleViewModeChange = (event, newViewMode) => {
     if (newViewMode !== null) {
@@ -121,9 +125,11 @@ const RecentFiles = ({ items, loading }) => {
             mb: 2,
           }}
         >
-          <Typography variant="h5" fontWeight="bold">
-            All Files
-          </Typography>
+          <Breadcrumbs
+            breadcrumbs={breadcrumbs}
+            navigateToFolder={navigateToFolder}
+            currentFolderName={currentFolder.name}
+          />
           <ToggleButtonGroup
             value={viewMode}
             exclusive
@@ -201,9 +207,12 @@ const RecentFiles = ({ items, loading }) => {
   if (items.length === 0) {
     return (
       <Box sx={{ mt: 3, mb: 3 }}>
-        <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
-          All Files
-        </Typography>
+        <Breadcrumbs
+          breadcrumbs={breadcrumbs}
+          navigateToFolder={navigateToFolder}
+          currentFolderName={currentFolder.name}
+          sx={{ mb: 2 }}
+        />
         <Box
           sx={{
             display: "flex",
@@ -231,9 +240,11 @@ const RecentFiles = ({ items, loading }) => {
           mb: 2,
         }}
       >
-        <Typography variant="h5" fontWeight="bold">
-          All Files
-        </Typography>
+        <Breadcrumbs
+          breadcrumbs={breadcrumbs}
+          navigateToFolder={navigateToFolder}
+          currentFolderName={currentFolder.name}
+        />
         <ToggleButtonGroup
           value={viewMode}
           exclusive
@@ -410,7 +421,23 @@ const RecentFiles = ({ items, loading }) => {
                         variant="body2"
                         noWrap
                         title={item.itemName.S}
-                        sx={{ overflow: "hidden", textOverflow: "ellipsis" }}
+                        sx={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          "&:hover": {
+                            color: theme.palette.primary.main,
+                          },
+                          cursor: "pointer",
+                        }}
+                        onClick={() =>
+                          item.itemType.S === "folder"
+                            ? navigateToFolder(
+                                item.itemId.S,
+                                item.itemName.S,
+                                item.itemPath.S
+                              )
+                            : null
+                        }
                       >
                         {item.itemName.S}
                       </Typography>
@@ -453,4 +480,4 @@ const RecentFiles = ({ items, loading }) => {
   );
 };
 
-export default RecentFiles;
+export default ItemsListView;

@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.1.4 - 2025-04-07
+
+### Added
+
+- Added dependency (currentFolder.id) to `useAsync` in `useRetrieveItems.js`
+- `Breadcrumbs.jsx` component
+- functions that facilitate navigation in `FolderContext.jsx`
+- Embedded `Breadcrumbs` feature in `ItemListView.jsx` for complete navigation.
+
+### Changed
+
+- Redesign DDB key structure
+- Final rename: `ItemListView.jsx`
+
+### Fixed
+
+- in `FolderContext.jsx` implemented `useEffect` with `location.pathname` dependency to cover reloads and navigation arrows. Additionally, protected by API endpoint that allows to find folder ID, knowing only relative URL path.
+
 ## 0.1.3 - 2025-04-06
 
 ### Added
@@ -31,7 +49,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- salient feature `RecentItems.jsx` (prev. `RecentFiles.jsx`) complete redesign to correctly display all files and folders (including sorting, data conversion, selection of files)
+- salient feature `ItemListView.jsx` (prev. `RecentFiles.jsx`) complete redesign to correctly display all files and folders (including sorting, data conversion, selection of files)
 - Hook to retrieve items in given folder `useRetrieveItems.js`
 - Common component `ItemActions.jsx` with **Upload** and **Create folder** buttons
 
