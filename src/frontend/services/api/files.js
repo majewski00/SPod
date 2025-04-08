@@ -1,5 +1,5 @@
 import * as ROUTES from "constants/routes";
-import { getJson, postJson } from "../apiHandlers";
+import { getJson, postJson } from "./handler";
 
 export const uploadFile = (parentId, fileName, fileType, fileSize, itemPath) =>
   postJson(

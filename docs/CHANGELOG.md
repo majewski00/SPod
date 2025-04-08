@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.1.5 - 2025-04-08
+
+### Added
+
+- `services/upload/index.js` entry point to upload files to S3
+- New hook `useFileUpload.js` to handle uploads (enable file selection and initiate upload)
+- `services/upload/queueProcessor.js` to process file upload queue in the background
+- use new hook in `HomePage.jsx`
+
+### Changed
+
+- rename `apiHandlers.js` to `handler.js` and move it to `/services/api/`
+
 ## 0.1.4 - 2025-04-07
 
 ### Added

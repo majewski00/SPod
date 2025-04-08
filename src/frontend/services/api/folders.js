@@ -1,5 +1,5 @@
 import * as ROUTES from "constants/routes";
-import { getJson, postJson } from "../apiHandlers";
+import { getJson, postJson } from "./handler";
 
 export const listItems = (folderId) =>
   getJson(ROUTES.FOLDER_LIST_ITEMS, { folderId }, {}, {}, { cacheBust: false });

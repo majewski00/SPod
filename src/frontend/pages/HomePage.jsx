@@ -13,6 +13,7 @@ import CreateFolderModal from "../components/common/CreateFolderModal";
 import { useUserAttributes } from "../hooks/useUserAttributes";
 import { useFolderContext } from "../contexts/FolderContext";
 import { useRetrieveItems } from "../hooks/useRetrieveItems";
+import { useFileUpload } from "../hooks/useFileUpload";
 
 const HelloUser = lazy(() => import("../components/common/HelloUser"));
 
@@ -21,7 +22,6 @@ const HomePage = () => {
   const { signOut } = useAuthenticator((context) => [context.signOut]);
   const { getUserFullName, userAttributesReady } = useUserAttributes();
 
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false);
   const [isNavigationOpen, setIsNavigationOpen] = useState(false);
 
@@ -32,8 +32,10 @@ const HomePage = () => {
   const { currentFolder, navigateToFolder, createNewFolder } =
     useFolderContext();
 
+  const { openFileSelector } = useFileUpload();
+
   const handleUploadClick = () => {
-    setShowUploadModal(true);
+    openFileSelector();
   };
 
   const { items, loading, error, reload } = useRetrieveItems();
