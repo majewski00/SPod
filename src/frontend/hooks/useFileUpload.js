@@ -1,5 +1,6 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { initializeUpload } from "../services/upload";
+import { useFolderContext } from "../contexts/FolderContext";
 
 /**
  * Custom hook for handling file uploads
@@ -12,6 +13,9 @@ export function useFileUpload() {
   const [isSelecting, setIsSelecting] = useState(false);
   const [uploadController, setUploadController] = useState(null);
   const fileInputRef = useRef(null);
+  const newUploadsQueueRef = useRef([]);
+
+  const { currentFolder } = useFolderContext();
 
   const createFileInput = useCallback(() => {
     if (fileInputRef.current) {
@@ -38,23 +42,16 @@ export function useFileUpload() {
         return;
       }
 
-      // todo remove logs
-      console.log(
-        "Selected files:",
-        selectedFiles.map((file) => file.name)
-      );
-      console.log("File object:", selectedFiles[0]);
+      const newQueueItems = selectedFiles.map((file) => ({
+        file,
+        progress: 0,
+        status: "pending",
+        id: `${file.name}-${Date.now()}`,
+      }));
 
       setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
-      setUploadQueue((prevQueue) => [
-        ...prevQueue,
-        ...selectedFiles.map((file) => ({
-          file,
-          progress: 0,
-          status: "pending",
-          id: `${file.name}-${Date.now()}`, // TODO: maybe assign ID here and now (instead of backend)
-        })),
-      ]);
+      setUploadQueue((prevQueue) => [...prevQueue, ...newQueueItems]);
+      newUploadsQueueRef.current = newQueueItems;
     } catch (error) {
       console.error("Error selecting files:", error);
       setErrors((prevErrors) => [
@@ -79,23 +76,19 @@ export function useFileUpload() {
     fileInputRef.current.click();
   }, [createFileInput]);
 
-  const clearErrors = useCallback(() => {
-    setErrors([]);
-  }, []);
-
-  const clearFiles = useCallback(() => {
-    setFiles([]);
-    setUploadQueue([]);
-  }, []);
-
   const startUpload = useCallback(() => {
-    if (uploadQueue.length === 0) {
-      console.warn("No files to upload");
-      return;
-    }
+    const filesToUpload = newUploadsQueueRef.current;
+    newUploadsQueueRef.current = [];
+
+    if (filesToUpload.length === 0) return;
+
+    console.log("Starting upload for files:", filesToUpload);
+    console.log("Upload queue state:", uploadQueue);
+
     const controller = initializeUpload(
-      () => uploadQueue,
+      uploadQueue,
       (fileId, progress, status = "uploading") => {
+        console.log("onItemProgress:", fileId, progress, status);
         setUploadQueue((prevQueue) =>
           prevQueue.map((item) =>
             item.id === fileId ? { ...item, progress, status } : item
@@ -104,13 +97,17 @@ export function useFileUpload() {
       },
       // TODO: should add result field to the item (?)
       (fileId, result) => {
+        console.log("onItemComplete:", result, fileId);
         setUploadQueue((prevQueue) =>
           prevQueue.map((item) =>
-            item.id === fileId ? { ...item, status: "complete" } : item
+            item.id === fileId
+              ? { ...item, status: "complete", progress: "100" }
+              : item
           )
         );
       },
       (fileId, error) => {
+        console.log("OnItemError:", error, fileId);
         setUploadQueue((prevQueue) =>
           prevQueue.map((item) =>
             item.id === fileId
@@ -118,30 +115,17 @@ export function useFileUpload() {
               : item
           )
         );
-      }
+      },
+      { parentId: currentFolder.id, itemLocation: currentFolder.path }
     );
 
     setUploadController(controller);
   }, [uploadQueue]);
 
-  const pauseUpload = useCallback(() => {
-    if (uploadController) {
-      uploadController.pause();
-    }
-  }, [uploadController]);
-
-  const resumeUpload = useCallback(() => {
-    if (uploadController) {
-      uploadController.resume();
-    }
-  }, [uploadController]);
-
-  const cancelUpload = useCallback(() => {
-    if (uploadController) {
-      uploadController.cancel();
-      setUploadController(null);
-    }
-  }, [uploadController]);
+  useEffect(() => {
+    console.log("Upload queue changed:", uploadQueue);
+    startUpload();
+  }, [uploadQueue]);
 
   return {
     files,
@@ -149,11 +133,40 @@ export function useFileUpload() {
     errors,
     isSelecting,
     openFileSelector,
-    clearErrors,
-    clearFiles,
     startUpload,
-    pauseUpload,
-    resumeUpload,
-    cancelUpload,
   };
 }
+
+//   const pauseUpload = useCallback(() => {
+//   if (uploadController) {
+//     uploadController.pause();
+//   }
+// }, [uploadController]);
+
+// const resumeUpload = useCallback(() => {
+//   if (uploadController) {
+//     uploadController.resume();
+//   }
+// }, [uploadController]);
+
+// const cancelUpload = useCallback(() => {
+//   if (uploadController) {
+//     uploadController.cancel();
+//     setUploadController(null);
+//   }
+// }, [uploadController]);
+
+//   pauseUpload,
+//   resumeUpload,
+//   cancelUpload,
+// clearErrors,
+// clearFiles,
+
+// const clearErrors = useCallback(() => {
+//   setErrors([]);
+// }, []);
+
+// const clearFiles = useCallback(() => {
+//   setFiles([]);
+//   setUploadQueue([]);
+// }, []);

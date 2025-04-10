@@ -1,5 +1,5 @@
 import { generateThumbnail } from "./thumbnailService";
-import { encryptFile } from "./encryptionService";
+// import { encryptFile } from "./encryptionService";
 import { calculateHash } from "./hashService";
 import { uploadToS3 } from "./s3UploadService";
 import { processQueue } from "./queueProcessor";
@@ -11,17 +11,24 @@ import { processQueue } from "./queueProcessor";
  * @param {Object} options - Upload options
  * @returns {Promise<Object>} - Result of the upload process
  */
-const processFile = async (file, onItemProgress, options = {}) => {
+const processFile = async (file, onItemProgress, options) => {
   try {
-    const thumbnail = await generateThumbnail(file); // TODO: encrypt and generate hash for thumbnail
+    const thumbnail = await generateThumbnail(file);
 
-    const encryptedFile = await encryptFile(file);
+    // const encryptedFile = await encryptFile(file);
 
-    const fileHash = await calculateHash(encryptedFile);
+    const fileHash = await calculateHash(file);
+
+    // Calculate hash for thumbnail if it exists
+    let thumbnailHash = null;
+    if (thumbnail && thumbnail.file) {
+      thumbnailHash = await calculateHash(thumbnail.file);
+    }
 
     const uploadResult = await uploadToS3(
-      encryptedFile,
+      file, // TODO Using the original file since we're not encrypting yet
       fileHash,
+      "", // TODO No encrypted data key for now
       thumbnail,
       options
     );
@@ -29,10 +36,13 @@ const processFile = async (file, onItemProgress, options = {}) => {
     return {
       success: true,
       fileId: uploadResult.fileId,
-      url: uploadResult.url,
-      thumbnail: thumbnail ? thumbnail.url : null,
+      thumbnail: thumbnail
+        ? {
+            url: thumbnail.url,
+            hash: thumbnailHash,
+          }
+        : null,
       hash: fileHash,
-      ...uploadResult,
     };
   } catch (error) {
     console.error("Error processing file:", error);
@@ -80,24 +90,26 @@ const isRetryableError = (error) => {
 
 /**
  * Initializes the upload process for a queue of files
- * @param {Function} getQueue - Callback to get the current objects in the upload queue
+ * @param {Function} uploadQueue - Callback to get the current objects in the upload queue // todo update
  * @param {Function} onItemProgress - Callback for item progress updates
  * @param {Function} onItemComplete - Callback for item completion
  * @param {Function} onItemError - Callback for item errors
  * @returns {Object} - Controls for the upload process
  */
 export const initializeUpload = (
-  getQueue,
+  uploadQueue,
   onItemProgress,
   onItemComplete,
-  onItemError
+  onItemError,
+  options
 ) => {
   const controller = processQueue(
-    getQueue,
+    uploadQueue,
     processFileWithRetry,
     onItemProgress,
     onItemComplete,
-    onItemError
+    onItemError,
+    options
   );
 
   return {

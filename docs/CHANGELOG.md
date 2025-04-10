@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.1.6 - 2025-04-10
+
+### Fixed
+
+- Remove issues with closure and two way communication between `useFileUpload.js` and `queueProcessor.js`. Used reference to indicate new items in queue.
+- In `queueProcessor.js` add internal state management
+
+### Added
+
+- Implementation of `s3UploadService.js`, `thumbnailService.js`, and `hashService.js`
+
+### Changed
+
+- Simple usage of new components in `processFile`
+
 ## 0.1.5 - 2025-04-08
 
 ### Added

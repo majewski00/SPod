@@ -1,20 +1,21 @@
 export const processQueue = (
-  getQueue,
+  initialQueue,
   processFile,
   onItemProgress,
   onItemComplete,
-  onItemError
+  onItemError,
+  options
 ) => {
   let isPaused = false;
   let isCancelled = false;
   let currentlyProcessing = new Set();
+  let uploadQueue = [...initialQueue];
   const maxConcurrent = 3;
 
   const processNext = async () => {
     if (isPaused || isCancelled) return;
-    const queue = getQueue();
 
-    const pendingItems = queue.filter(
+    const pendingItems = uploadQueue.filter(
       (item) => item.status === "pending" && !currentlyProcessing.has(item.id)
     );
 
@@ -33,14 +34,30 @@ export const processQueue = (
 
   const processItem = async (item) => {
     try {
-      const result = await processFile(item, onItemProgress);
-      onItemComplete(item.id, result); // ? it might not be the right place to call this - complexity of response
+      const result = await processFile(
+        item.file,
+        (progress, status = "uploading") => {
+          updateInternalQueue(item.id, progress, status);
+          onItemProgress(item.id, progress, status);
+        },
+        options
+      );
+      updateInternalQueue(item.id, 100, "complete");
+      onItemComplete(item.id, result);
     } catch (error) {
+      updateInternalQueue(item.id, 0, "failed");
       onItemError(item.id, error);
     }
   };
 
+  const updateInternalQueue = (itemId, progress, status = "uploading") => {
+    uploadQueue = uploadQueue.map((item) =>
+      item.id === itemId ? { ...item, progress, status } : item
+    );
+  };
+
   processNext();
+
   return {
     pause: () => {
       isPaused = true;
