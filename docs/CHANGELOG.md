@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.1.7 - 2025-04-10
+
+### Added
+
+- CORS Rules in `s3.mjs` to allow communication with the site
+- HTTPS configuration in `vite.config.js`
+- `.gitignore` for path with the local certificate
+
+### Changed
+
+- `uploadFile` takes additional parameters to allow backend to store them and sign URL for S3 with hash
+- `s3-signed-url.js` sign URL with hash
+- Adapt `files.js` in the backend, changed DDB structure for files
+
 ## 0.1.6 - 2025-04-10
 
 ### Fixed

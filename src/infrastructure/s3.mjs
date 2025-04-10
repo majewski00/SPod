@@ -28,10 +28,20 @@ export class StorageS3Stack extends cdk.Stack {
             "aws:SecureTransport": "false",
           },
         },
-        sid: "DenyUnSecureTransport",
+        sid: "EnforceSecureTransport",
       })
     );
-    // TODO: Add CORS (Cross-Origin Resource Sharing) policy to the S3 bucket for local development
+    storageBucket.addCorsRule({
+      allowedMethods: [
+        s3.HttpMethods.GET,
+        s3.HttpMethods.PUT,
+        s3.HttpMethods.POST,
+        s3.HttpMethods.HEAD,
+      ],
+      allowedOrigins: ["https://localhost:4000"],
+      allowedHeaders: ["*"],
+      exposedHeaders: ["ETag"],
+    });
 
     new ssm.StringParameter(this, `${SERVICE}-StorageS3BucketIdParameter`, {
       parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/s3_storage_bucket_name`,

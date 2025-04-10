@@ -14,18 +14,24 @@ export const generateUploadURL = async ({
   fileId,
   fileType,
   fileSize,
+  fileHash,
 }) => {
   const key = `users/${userId}/${fileId}`;
 
+  // TODO: RequestHeaders: {'x-amz-meta-auth-token': userSpecificToken}  (?)
   const command = new PutObjectCommand({
     Bucket: process.env.S3_STORAGE_BUCKET_NAME,
     Key: key,
     ContentType: fileType,
     ContentLength: fileSize,
+    ChecksumSHA256: fileHash,
+    // TODO: ServerSideEncryption: "aws:kms",
     Metadata: {
-      "x-amz-meta-owner": userId,
-      "x-amz-meta-file-id": fileId,
-      "x-amz-meta-size": fileSize.toString(),
+      owner: userId,
+      "file-id": fileId,
+      size: fileSize.toString(),
+      type: fileType,
+      hash: fileHash,
     },
   });
 

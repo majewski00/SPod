@@ -39,3 +39,7 @@ venv.bak/
 # Crash log files
 crash.log
 crash.*.log
+
+# SSL Certificates
+*.pem
+.ssl-certs/
