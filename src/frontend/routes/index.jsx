@@ -3,8 +3,8 @@ import { useAuthenticator } from "@aws-amplify/ui-react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoaderPage from "../pages/LoaderPage";
 import { FolderProvider } from "../contexts/FolderContext";
+import { ErrorProvider } from "../contexts/ErrorContext";
 
-// Lazy load the page components
 const LoginPage = lazy(() => import("../pages/SignInPage"));
 const HomePage = lazy(() => import("../pages/HomePage"));
 
@@ -20,6 +20,7 @@ const AppRoutes = () => {
     case "authenticated":
       return (
         // <Suspense fallback={<LoaderPage />}>
+        <ErrorProvider>
           <FolderProvider>
             <Routes>
               <Route path="/home" element={<HomePage />} />
@@ -27,8 +28,9 @@ const AppRoutes = () => {
               <Route path="*" element={<Navigate to="/home" replace />} />
             </Routes>
           </FolderProvider>
+        </ErrorProvider>
         // </Suspense>
-      )
+      );
     case "unauthenticated":
       return (
         <Suspense fallback={<LoaderPage />}>
@@ -37,7 +39,7 @@ const AppRoutes = () => {
             <Route path="*" element={<Navigate to="/auth" replace />} />
           </Routes>
         </Suspense>
-      )
+      );
     default:
       break;
   }

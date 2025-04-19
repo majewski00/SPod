@@ -28,7 +28,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useFolderContext } from "../../contexts/FolderContext";
 import Breadcrumbs from "./Breadcrumbs";
 
-const ItemsListView = ({ items, loading }) => {
+const ItemsListView = ({ items, loading, reloadType = "navigation" }) => {
   const theme = useTheme();
   const [viewMode, setViewMode] = useState("list");
   const [sortField, setSortField] = useState("name");
@@ -37,6 +37,10 @@ const ItemsListView = ({ items, loading }) => {
   const [hoveredRow, setHoveredRow] = useState(null);
 
   const { currentFolder, navigateToFolder, breadcrumbs } = useFolderContext();
+
+  // Determine if we should show loading state
+  // Only show loading for initial load or navigation, not for file upload reloads
+  const showLoading = loading && reloadType !== "fileUpload";
 
   const handleViewModeChange = (event, newViewMode) => {
     if (newViewMode !== null) {
@@ -103,18 +107,20 @@ const ItemsListView = ({ items, loading }) => {
         let comparison = 0;
 
         if (sortField === "name") {
-          comparison = a.name.localeCompare(b.name);
+          comparison = a.itemName.S.localeCompare(b.itemName.S);
         } else if (sortField === "modified") {
-          comparison = new Date(a.modifiedAt) - new Date(b.modifiedAt);
+          comparison = new Date(a.updatedAt.S) - new Date(b.updatedAt.S);
         } else if (sortField === "type") {
-          comparison = getFileType(a.type).localeCompare(getFileType(b.type));
+          comparison = getFileType(a.itemType.S).localeCompare(
+            getFileType(b.itemType.S)
+          );
         }
 
         return sortDirection === "asc" ? comparison : -comparison;
       })
     : [];
 
-  if (loading || !items) {
+  if (showLoading || !items) {
     return (
       <Box sx={{ mb: 3 }}>
         <Box
@@ -414,6 +420,7 @@ const ItemsListView = ({ items, loading }) => {
                   </TableCell>
                   <TableCell sx={{ width: "40%" }}>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
+                      {/* // TODO: change icons depending on type */}
                       <PhotoIcon
                         sx={{ mr: 1, color: "text.secondary", flexShrink: 0 }}
                       />

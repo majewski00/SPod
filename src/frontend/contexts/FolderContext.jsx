@@ -1,21 +1,20 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { createFolder, findFolder } from "../services/api/folders";
+import { createFolder, fetchFolder } from "../services/api/folders";
+import { useError } from "./ErrorContext";
 
-const FolderContext = createContext();
 const rootFolderDefault = {
   id: "root",
   name: "All Files",
   path: "home",
 };
 
+const FolderContext = createContext();
+
 export function FolderProvider({ children }) {
   const [currentFolder, setCurrentFolder] = useState(rootFolderDefault);
-  const [breadcrumbs, setBreadcrumbs] = useState(() => {
-    const { id, ...rootFolderWithoutId } = rootFolderDefault;
-    return [rootFolderWithoutId];
-  });
-  const [error, setError] = useState(null);
+  const [breadcrumbs, setBreadcrumbs] = useState([]);
+  const { showError, StatusCodes } = useError();
 
   const setCurrentLocation = ({ id, name, path }) => {
     setCurrentFolder({ id, name, path });
@@ -33,7 +32,6 @@ export function FolderProvider({ children }) {
         path: currentPath,
       });
     }
-
     setBreadcrumbs(newBreadcrumbs);
   };
 
@@ -41,11 +39,15 @@ export function FolderProvider({ children }) {
   const location = useLocation();
 
   useEffect(() => {
-    const stripedPath = location.pathname.substring(1);
+    const decodedPath = decodeURIComponent(location.pathname);
+    const stripedPath = decodedPath.substring(1);
+
+    if (stripedPath === currentFolder.path) {
+      return;
+    }
     if (!stripedPath.startsWith(rootFolderDefault.path)) {
       return;
     }
-
     if (stripedPath === rootFolderDefault.path) {
       setCurrentLocation(rootFolderDefault);
       return;
@@ -56,28 +58,33 @@ export function FolderProvider({ children }) {
 
   const fetchFolderDetails = async (folderPath) => {
     try {
-      const folderData = await findFolder(folderPath); // TODO: handle error if folder not found
+      const folderData = await fetchFolder(folderPath);
       setCurrentLocation({
         id: folderData.itemId.S,
         name: folderData.itemName.S,
         path: folderData.itemPath.S,
       });
     } catch (error) {
-      console.error("Error fetching folder details:", error);
+      if (error.status === StatusCodes.NOT_FOUND) {
+        navigateToFolder(null, null, rootFolderDefault.path); // TODO: useRef to keep track of the last viewed folder and navigate to it
+      }
+      showError(error);
     }
   };
 
-  const navigateToFolder = (folderId, folderName, folderPath) => {
+  const navigateToFolder = async (folderId, folderName, folderPath) => {
     if (!folderId && !folderName && !folderPath) {
-      setError("At least folderPath is required to navigate to a folder.");
+      showError({
+        message: "At least folderPath is required to navigate to a folder.",
+        status: 400,
+      });
       return;
     }
-
     if (!folderId || !folderName) {
       if (folderPath === rootFolderDefault.path) {
         setCurrentLocation(rootFolderDefault);
       } else {
-        fetchFolderDetails(folderPath);
+        await fetchFolderDetails(folderPath);
       }
     } else {
       setCurrentLocation({ id: folderId, name: folderName, path: folderPath });
@@ -97,6 +104,7 @@ export function FolderProvider({ children }) {
       navigateToFolder(folderId, folderName, folderPath);
     } catch (error) {
       console.error("Error creating folder:", error);
+      showError(error);
     }
   };
   return (

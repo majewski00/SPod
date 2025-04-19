@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
-  Button, 
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
   TextField,
-  Box
+  Box,
 } from "@mui/material";
 
 /**
@@ -73,9 +73,9 @@ const CreateFolderModal = ({ open, onSubmit, onClose, onSuccess }) => {
         <Button onClick={handleClose} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button 
-          onClick={handleSubmit} 
-          variant="contained" 
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
           color="primary"
           disabled={isSubmitting}
         >

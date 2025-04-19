@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.2.0 - 2025-04-19
+
+### Added
+
+- `UploadStatusView.jsx` indicating the upload progress
+- `FileTypeIcons.jsx` to store all placeholder icons for given file type
+- `ErrorContext.jsx` to test general way of handling errors - for now redirect to home when unknown URL is accessed
+- Debounce refresh callback in `useFileUpload.js` when file is uploaded
+
+### Changed
+
+- When display loading view in `ItemListView.jsx` - do not show it when files are appended (during upload) to achieve better flow
+- Better return structure in `useFileUpload.js` and *useEffect* to keep track of upload process 
+
+### Fixed
+
+- Unnecessary invocations to *FOLDER_FETCH* (old FOLDER_FIND) in `FolderContext.jsx`
+- How default breadcrumbs are defined in `FolderContext.jsx`
+- "sortedFiles" in `ItemListView.jsx`
+
 ## 0.1.7 - 2025-04-10
 
 ### Added
