@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.2.4 - 2025-04-19
+
+### Added 
+
+- Build configuration in `vite.config.js`
+- API_BASE_URL in `frontend-vars.sh`
+- Default IS_OFFLINE in `local-vars.sh`
+- New script to deploy frontend build to the S3 - `frontend-deploy.sh`
+
+### Changed
+
+- Structured *build:* commands in `package.json`
+- SecretsManager support in `serverless.yml` and new required ENV variables
+
+### Fixed
+
+- Correctly pass *API_BASE_URL* in `vite.config.js` by using **!!+** (string to bool)
+- Correct reference to *main.jsx* in `index.html`
+- Remove *type: request* in `serverless.yml` - produces errors when not using serverless-offline
+
 ## 0.2.3 - 2025-04-19
 
 ### Changed

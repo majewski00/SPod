@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import fs from "fs";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   root: "./html",
@@ -19,7 +18,7 @@ export default defineConfig({
       COGNITO_DOMAIN: process.env.COGNITO_DOMAIN,
       COGNITO_USER_POOL_CLIENT_ID: process.env.COGNITO_USER_POOL_CLIENT_ID,
       AWS_REGION: process.env.AWS_REGION,
-      VITE_API_BASE_URL: "",
+      API_BASE_URL: !!+process.env.IS_OFFLINE ? "" : process.env.API_BASE_URL,
     },
   },
   server: {
@@ -39,5 +38,10 @@ export default defineConfig({
         secure: false,
       },
     },
+  },
+  build: {
+    outDir: "../../dist",
+    emptyOutDir: true,
+    sourcemap: false,
   },
 });

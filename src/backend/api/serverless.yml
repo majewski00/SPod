@@ -22,7 +22,7 @@ provider:
     Service: ${self:custom.service}
     # Version: ${ssm:/${self:custom.service}/${self:provider.stage}/${self:provider.region}/version}
     'Managed By': 'Serverless'
-  timeout: 30
+  timeout: 28
   iam:
     role:
       name: ${self:custom.name}
@@ -32,7 +32,13 @@ provider:
           Action:
             - "ssm:GetParameters"
           Resource: 
-            - "arn:aws:ssm:${self:provider.region}:${aws:accountId}:parameter/*" #env:$AWS_ACCOUNT_ID
+            - "arn:aws:ssm:${self:provider.region}:${aws:accountId}:parameter/*"
+        - Sid: "SecretsManager"
+          Effect: "Allow"
+          Action:
+            - "secretsmanager:GetSecretValue"
+          Resource: 
+            - "${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/cloudfront_private_key_secret_arn}"
         - Sid: "DynamoDB"
           Effect: "Allow"
           Action:
@@ -59,19 +65,21 @@ functions:
       DYNAMODB_TABLE_NAME: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/dynamodb_table_name}
       S3_STORAGE_BUCKET_NAME: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/s3_storage_bucket_name}
       COGNITO_USER_POOL_ID: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/user_pool_id}
+      KEY_PAIR_ID: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/cloudfront_key_pair_id}
+      CLOUDFRONT_DISTRIBUTION_ID: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/cloudfront_distribution_id}
+      CLOUDFRONT_DOMAIN_NAME: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/cloudfront_domain_name}
     events:
       - httpApi:
           method: GET
           path: /api/{proxy+}
           authorizer:
             id: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/api_gateway_authorizer_id_cognito}
-            type: request
+            # type: request
       - httpApi:
           method: POST
           path: /api/{proxy+}
           authorizer:
             id: ${ssm:/${self:custom.service}/${self:provider.stage}/${env:AWS_REGION}/api_gateway_authorizer_id_cognito}
-            type: request
 
 custom:
   service: ${env:SERVICE}
