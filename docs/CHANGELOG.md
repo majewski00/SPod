@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.2.3 - 2025-04-19
+
+### Changed
+
+- Remove `static-frontend.mjs` stack
+- Centralize S3 buckets in one stack
+- Use *distributionDomainName* in the HttpApi's **allowOrigins** - `api-gateway.mjs`
+- Two phase deployment in `deploy.sh`
+
+### Added
+
+- New stack to centralize CLoudFront operations - `cloudfront-delivery.mjs`
+- Two phase CDK deployment in `s3.mjs` to attach *cloudfrontDomainName* when created
+
+### Fixed
+
+- Previously used *new origins.S3BucketOrigin* wasn't correct implementation - `origins.S3BucketOrigin.withOriginAccessIdentity` is correct
+
 ## 0.2.2 - 2025-04-19
 
 ### Added

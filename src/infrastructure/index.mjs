@@ -2,8 +2,8 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import * as cdk from "aws-cdk-lib";
 import { CognitoStack } from "./cognito.mjs";
-import { FrontendStack } from "./static-frontend.mjs";
-import { StorageS3Stack } from "./s3.mjs";
+import { S3Stack } from "./s3.mjs";
+import { CloudFrontDeliveryStack } from "./cloudfront-delivery.mjs";
 import { ApiStack } from "./api-gateway.mjs";
 import { DynamoDBStack } from "./dynamodb.mjs";
 
@@ -26,7 +26,7 @@ const cognito = new CognitoStack(app, `${SERVICE}-CognitoStack`, {
   terminationProtection: false,
 });
 
-const frontend = new FrontendStack(app, `${SERVICE}-FrontendStack`, {
+const s3 = new S3Stack(app, `${SERVICE}-S3Stack`, {
   version: localPackageJson.version,
   env: {
     account: CDK_DEPLOY_ACCOUNT,
@@ -35,17 +35,25 @@ const frontend = new FrontendStack(app, `${SERVICE}-FrontendStack`, {
   terminationProtection: false,
 });
 
-const s3 = new StorageS3Stack(app, `${SERVICE}-StorageS3Stack`, {
-  version: localPackageJson.version,
-  env: {
-    account: CDK_DEPLOY_ACCOUNT,
-    region: AWS_REGION,
-  },
-  terminationProtection: false,
-});
+const cloudfront = new CloudFrontDeliveryStack(
+  app,
+  `${SERVICE}-CloudFrontDeliveryStack`,
+  {
+    storageBucket: s3.storageBucket,
+    frontendBucket: s3.frontendBucket,
+    originAccessIdentity: s3.originAccessIdentity,
+    version: localPackageJson.version,
+    env: {
+      account: CDK_DEPLOY_ACCOUNT,
+      region: AWS_REGION,
+    },
+    terminationProtection: false,
+  }
+);
 
 const api = new ApiStack(app, `${SERVICE}-ApiStack`, {
   cognito,
+  distributionDomainName: cloudfront.distributionDomainName,
   version: localPackageJson.version,
   env: {
     account: CDK_DEPLOY_ACCOUNT,

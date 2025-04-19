@@ -6,11 +6,12 @@ export class ApiStack extends cdk.Stack {
   constructor(scope, id, props) {
     super(scope, id, props);
 
-    const { cognito } = props;
+    const { cognito, distributionDomainName } = props;
 
     const SERVICE = process.env.SERVICE;
     const BUILD_STAGE = process.env.BUILD_STAGE;
     const AWS_REGION = process.env.AWS_REGION;
+    const DOMAIN_NAME = process.env.DOMAIN_NAME;
 
     const httpApi = new apigatewayv2.HttpApi(this, `${SERVICE}-HttpApi`, {
       apiName: `${SERVICE}-${BUILD_STAGE}-http-api`,
@@ -27,7 +28,7 @@ export class ApiStack extends cdk.Stack {
           apigatewayv2.HttpMethod.OPTIONS,
           apigatewayv2.HttpMethod.DELETE,
         ],
-        allowOrigins: ["*"], // TODO: update this to the frontend domain
+        allowOrigins: [`https://${distributionDomainName}`], // TODO: DOMAIN_NAME
         maxAge: cdk.Duration.hours(1),
       },
     });
@@ -50,6 +51,9 @@ export class ApiStack extends cdk.Stack {
       autoDeploy: true,
     });
 
+    // TODO: CloudFront distro and acm.Certificate for domain
+    // if (DOMAIN_NAME) {}
+
     new ssm.StringParameter(this, `${SERVICE}-ApiGatewayRestApiIdParameter`, {
       parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/api_gateway_rest_api_id`,
       stringValue: httpApi.apiId,
@@ -63,8 +67,9 @@ export class ApiStack extends cdk.Stack {
         stringValue: httpApiAuthorizer.ref,
       }
     );
-    // TODO: HTTP API URL
-    // stringValue: `https://${USE_DOMAIN ? httpApiDomains[0] : this.httpApiDistribution.domainName}`
-    // httpApiDistribution == CF distribution
+    new ssm.StringParameter(this, `${SERVICE}-HttpApiUrlParameter`, {
+      parameterName: `/${SERVICE}/${BUILD_STAGE}/${AWS_REGION}/http_api_url`,
+      stringValue: httpApi.apiEndpoint, // starts with https://
+    });
   }
 }

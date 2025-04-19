@@ -26,6 +26,20 @@ fi
 
 echo "Deploying all stacks..."
 npx cdk deploy --require-approval=never --ci --all || { echo "CDK deployment failed!"; exit 1; }
+
+
+if [ -z "${DOMAIN_NAME// }" ]; then
+  export SECOND_DEPLOYMENT=1
+  echo ">> Domain not set. Proceeding with second deployment... <<"
+  sleep 10
+
+  npx cdk deploy --require-approval=never --ci --all || { echo "Phase 2 deployment failed!"; exit 1; }
+
+else
+  echo ">> Domain set. Skipping second deployment... <<"
+  echo "DOMAIN is: '${DOMAIN_NAME}'"
+fi
+
 echo "Deployment completed successfully."
 cd ../..
 
