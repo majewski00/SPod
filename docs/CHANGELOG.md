@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.2.1 - 2025-04-19
+
+### Added
+
+- Almost full upload flow in `services/upload/index.js` - without encryption
+- API handler for thumbnail integration
+
+### Changed
+
+- Adapt `HomePage.jsx` for upload progress drawer
+- How *onItemProgress* is handled to not overwrite previous values
+- Generalize `s3UploadService.js` to handle both file and thumbnail upload
+- `services/api/handler.js` to use new error context
+- `services/api/files.js` to send fileHash and hasThumbnail
+- rename *FOLDER_FETCH* in `folder.js`
+
 ## 0.2.0 - 2025-04-19
 
 ### Added

@@ -15,9 +15,9 @@ export const createFolder = (folderName, parentId, itemPath) =>
 export const getThumbnails = (folderId) =>
   getJson(ROUTES.FOLDER_THUMBNAILS, { folderId }, {}, {}, { cacheBust: true }); // TODO: add nextToken
 
-export const findFolder = (folderPath) =>
+export const fetchFolder = (folderPath) =>
   getJson(
-    ROUTES.FOLDER_FIND,
+    ROUTES.FOLDER_FETCH,
     { folderPath: encodeURIComponent(folderPath) },
     {},
     {},

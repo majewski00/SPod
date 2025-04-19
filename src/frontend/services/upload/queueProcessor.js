@@ -13,7 +13,9 @@ export const processQueue = (
   const maxConcurrent = 3;
 
   const processNext = async () => {
-    if (isPaused || isCancelled) return;
+    if (isPaused || isCancelled) {
+      return;
+    }
 
     const pendingItems = uploadQueue.filter(
       (item) => item.status === "pending" && !currentlyProcessing.has(item.id)
@@ -36,23 +38,25 @@ export const processQueue = (
     try {
       const result = await processFile(
         item.file,
-        (progress, status = "uploading") => {
+        ({ progress, status, result }) => {
           updateInternalQueue(item.id, progress, status);
-          onItemProgress(item.id, progress, status);
+          onItemProgress(item.id, progress, status, result);
         },
         options
       );
       updateInternalQueue(item.id, 100, "complete");
       onItemComplete(item.id, result);
     } catch (error) {
-      updateInternalQueue(item.id, 0, "failed");
+      updateInternalQueue(item.id, -1, "failed");
       onItemError(item.id, error);
     }
   };
 
-  const updateInternalQueue = (itemId, progress, status = "uploading") => {
+  const updateInternalQueue = (itemId, progress, status) => {
     uploadQueue = uploadQueue.map((item) =>
-      item.id === itemId ? { ...item, progress, status } : item
+      item.id === itemId
+        ? { ...item, progress, ...(status !== undefined && { status }) }
+        : item
     );
   };
 

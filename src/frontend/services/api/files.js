@@ -8,7 +8,8 @@ export const uploadFile = (
   fileSize,
   itemPath,
   encryptedDataKey,
-  fileHash
+  fileHash,
+  hasThumbnail
 ) =>
   postJson(
     ROUTES.FILE_UPLOAD,
@@ -20,6 +21,7 @@ export const uploadFile = (
       itemPath: encodeURIComponent(itemPath),
       encryptedDataKey,
       fileHash,
+      hasThumbnail,
     },
     {},
     { cacheBust: true }

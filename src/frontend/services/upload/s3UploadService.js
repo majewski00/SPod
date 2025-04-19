@@ -1,37 +1,54 @@
 import { uploadFile } from "../api/files";
+import { uploadThumbnail } from "../api/thumbnails";
 
 export const uploadToS3 = async (
   file,
   fileHash,
   encryptedDataKey = "", // TODO: remove optional
-  thumbnail = null,
   options
 ) => {
   try {
     const fileName = file.name;
     const fileType = file.type;
     const fileSize = file.size;
-    const { parentId = "root", itemLocation = "home" } = options;
-    const itemPath = `${itemLocation}/${fileName}`;
+    const {
+      parentId = "root",
+      itemLocation = "home",
+      hasThumbnail = false,
+      isThumbnail = false,
+      fileId = null,
+    } = options;
 
-    const response = await uploadFile(
-      parentId,
-      fileName,
-      fileType,
-      fileSize,
-      itemPath,
-      encryptedDataKey,
-      fileHash
-    );
-    // TODO use this fileId to upload thumbnail
-    const { url, fileId } = response;
+    let response = null;
 
-    const uploadResponse = await uploadFileToS3(file, url, fileType);
+    if (!isThumbnail) {
+      const itemPath = `${itemLocation}/${fileName}`;
 
-    return {
-      success: true,
-      fileId,
-    };
+      response = await uploadFile(
+        parentId,
+        fileName,
+        fileType,
+        fileSize,
+        itemPath,
+        encryptedDataKey,
+        fileHash,
+        hasThumbnail
+      );
+    } else {
+      response = await uploadThumbnail(
+        fileId,
+        parentId,
+        fileName,
+        fileSize,
+        fileType,
+        encryptedDataKey,
+        fileHash
+      );
+    }
+
+    await uploadFileToS3(file, response.uploadURL, fileType);
+
+    return response?.fileId;
   } catch (error) {
     console.error("Error uploading to S3:", error);
     throw error;

@@ -1,4 +1,4 @@
-import React, { useState, lazy } from "react";
+import React, { useState, lazy, useEffect } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { Box, useTheme, Button } from "@mui/material";
 import Header from "../components/layout/Header";
@@ -10,6 +10,7 @@ import {
 import ItemListView from "../components/feature/ItemListView";
 import ItemActions from "../components/common/ItemActions";
 import CreateFolderModal from "../components/common/CreateFolderModal";
+import UploadStatusView from "../components/feature/UploadStatusView";
 import { useUserAttributes } from "../hooks/useUserAttributes";
 import { useFolderContext } from "../contexts/FolderContext";
 import { useRetrieveItems } from "../hooks/useRetrieveItems";
@@ -32,13 +33,23 @@ const HomePage = () => {
   const { currentFolder, navigateToFolder, createNewFolder } =
     useFolderContext();
 
-  const { openFileSelector } = useFileUpload();
+  const { items, loading, error, reload, reloadType } = useRetrieveItems();
+
+  const {
+    openFileSelector,
+    uploadQueue,
+    pauseUpload,
+    resumeUpload,
+    cancelUpload,
+    isPaused,
+  } = useFileUpload(() => {
+    console.log("Upload complete, reloading items with fileUpload type.");
+    reload("fileUpload");
+  });
 
   const handleUploadClick = () => {
     openFileSelector();
   };
-
-  const { items, loading, error, reload } = useRetrieveItems();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
@@ -128,7 +139,11 @@ const HomePage = () => {
           />
 
           <Box sx={{ mt: 3 }}>
-            <ItemListView items={items} loading={loading} />
+            <ItemListView
+              items={items}
+              loading={loading}
+              reloadType={reloadType}
+            />
           </Box>
         </Box>
       </Box>
@@ -137,6 +152,14 @@ const HomePage = () => {
         open={showCreateFolderModal}
         onSubmit={(folderName) => createNewFolder(folderName)}
         onClose={() => setShowCreateFolderModal(false)}
+      />
+
+      <UploadStatusView
+        uploadQueue={uploadQueue}
+        onPauseUpload={pauseUpload}
+        onResumeUpload={resumeUpload}
+        onCancelUpload={cancelUpload}
+        isPaused={isPaused}
       />
     </Box>
   );

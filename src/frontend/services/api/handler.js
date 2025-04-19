@@ -1,7 +1,8 @@
 import { fetchAuthSession } from "aws-amplify/auth";
+import { StatusCodes, getReasonPhrase } from "http-status-codes";
 
 const TOKEN_EXPIRY_MINUTES = 5;
-const API_BASE_URL = process.env.VITE_API_BASE_URL;
+const API_BASE_URL = process.env.API_BASE_URL;
 
 let accessToken = null;
 let tokenFetchTime = null;
@@ -56,6 +57,12 @@ function formatApiUrl(
     formattedPath.startsWith("http://") || formattedPath.startsWith("https://");
   let url = isFullUrl ? formattedPath : `${API_BASE_URL}${formattedPath}`;
 
+  console.log(
+    `API Base URL: ${API_BASE_URL}; Path: ${formattedPath}; \nprocess is ${
+      process.env.IS_OFFLINE ? "offline" : "online"
+    }`
+  );
+
   const searchParams = new URLSearchParams();
   Object.entries(queryParams).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
@@ -82,17 +89,21 @@ function formatApiUrl(
  * @throws {Error} For failed requests
  */
 async function handleResponse(response, { isText = false } = {}) {
-  if (response.status === 401) {
+  if (response.status === StatusCodes.UNAUTHORIZED) {
     accessToken = null;
     tokenFetchTime = null;
-    throw new Error("Authentication required");
+    const error = new Error("Authentication required");
+    error.status = response.status;
+    throw error;
   }
 
   if (!response.ok) {
-    const error = new Error(
-      `API request failed with status ${response.status}`
-    );
+    // Get the reason phrase for the status code
+    const reasonPhrase = getReasonPhrase(response.status);
+    const error = new Error(`API request failed: ${reasonPhrase}`);
     error.status = response.status;
+    error.message = getReasonPhrase(response.status);
+
     throw error;
   }
 
