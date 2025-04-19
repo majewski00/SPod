@@ -5,6 +5,7 @@ import { useFolderContext } from "../contexts/FolderContext";
 
 export function useRetrieveItems() {
   const [error, setError] = useState(null);
+  const [reloadType, setReloadType] = useState("navigation"); // 'navigation', or 'fileUpload'
 
   const { currentFolder } = useFolderContext();
   const {
@@ -13,6 +14,10 @@ export function useRetrieveItems() {
     error: itemsError,
     execute: reloadItems,
   } = useAsync(() => listItems(currentFolder.id), true, [currentFolder.id]);
+
+  useEffect(() => {
+    setReloadType("navigation");
+  }, [currentFolder.id]);
 
   useEffect(() => {
     if (items === null && !loadingItems) {
@@ -26,8 +31,10 @@ export function useRetrieveItems() {
     items,
     loading: loadingItems,
     error: error || itemsError,
-    reload: () => {
+    reloadType,
+    reload: (type = "navigation") => {
       setError(null);
+      setReloadType(type);
       reloadItems();
     },
   };

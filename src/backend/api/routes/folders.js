@@ -14,6 +14,7 @@ export default (router) => {
   router.post(ROUTES.FOLDER_CREATE, async (req, res) => {
     const itemPath = decodeURIComponent(req.body.itemPath);
 
+    const { folderName, parentId } = req.body;
     const folderId = randomUUID();
     const timestamp = new Date().toISOString();
 
@@ -22,16 +23,16 @@ export default (router) => {
         new PutItemCommand({
           TableName: process.env.DYNAMODB_TABLE_NAME,
           Item: {
-            PK: { S: `USER#${res.locals.user.sub}#IN#${req.body.parentId}` },
-            SK: { S: `ID#${folderId}#TYPE#folder` },
+            PK: { S: `USER#${res.locals.user.sub}#IN#${parentId}` },
+            SK: { S: `TYPE#folderID#${folderId}` },
             GSI1PK: {
               S: `USER#${res.locals.user.sub}#PATH#${itemPath}`,
             },
-            GSI1SK: { S: `NAME#${req.body.folderName}` },
+            GSI1SK: { S: `NAME#${folderName}` },
             userId: { S: res.locals.user.sub },
-            itemName: { S: req.body.folderName },
+            itemName: { S: folderName },
             itemId: { S: folderId },
-            parentId: { S: req.body.parentId },
+            parentId: { S: parentId },
             itemPath: { S: itemPath },
             itemType: { S: "folder" },
             itemSize: { N: "0" },
@@ -65,7 +66,7 @@ export default (router) => {
     }
   });
 
-  router.get(ROUTES.FOLDER_FIND, async (req, res) => {
+  router.get(ROUTES.FOLDER_FETCH, async (req, res) => {
     const folderPath = decodeURIComponent(req.params.folderPath);
 
     const params = {

@@ -15,8 +15,9 @@ export const generateUploadURL = async ({
   fileType,
   fileSize,
   fileHash,
+  subfolder = "items",
 }) => {
-  const key = `users/${userId}/${fileId}`;
+  const key = `users/${userId}/${subfolder}/${fileId}`;
 
   // TODO: RequestHeaders: {'x-amz-meta-auth-token': userSpecificToken}  (?)
   const command = new PutObjectCommand({
@@ -38,8 +39,12 @@ export const generateUploadURL = async ({
   return await getSignedUrl(s3, command, { expiresIn: 300 });
 };
 
-export const generateDownloadURL = async ({ userId, fileId }) => {
-  const key = `users/${userId}/${fileId}`;
+export const generateDownloadURL = async ({
+  userId,
+  fileId,
+  subfolder = "files",
+}) => {
+  const key = `users/${userId}/${subfolder}/${fileId}`;
 
   const command = new GetObjectCommand({
     Bucket: process.env.S3_STORAGE_BUCKET_NAME,

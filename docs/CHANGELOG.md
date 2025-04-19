@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 0.2.2 - 2025-04-19
+
+### Added
+
+- default navigation type in `useRetrieveItems.js`
+- `thumbnails.js` API route
+- `routes.js` with new thumbnail endpoint
+
+### Changed
+
+- `s3-signed-url.js` to work with different paths
+
 ## 0.2.1 - 2025-04-19
 
 ### Added

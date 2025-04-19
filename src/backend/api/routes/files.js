@@ -20,6 +20,7 @@ export default (router) => {
       parentId,
       encryptedDataKey,
       fileHash,
+      hasThumbnail,
     } = req.body;
 
     const maxFileSize = 10485760; // TODO: Move this check to the frontend
@@ -31,42 +32,44 @@ export default (router) => {
     const fileId = randomUUID();
     const timestamp = new Date().toISOString();
 
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      Item: {
+        PK: { S: `USER#${res.locals.user.sub}#IN#${parentId}` },
+        SK: { S: `TYPE#file#ID#${fileId}` },
+        GSI1PK: {
+          S: `USER#${res.locals.user.sub}#PATH#${itemPath}`,
+        },
+        GSI1SK: { S: `NAME#${fileName}` },
+        userId: { S: res.locals.user.sub },
+        itemName: { S: fileName },
+        itemId: { S: fileId },
+        parentId: { S: parentId },
+        itemPath: { S: itemPath },
+        itemType: { S: fileType },
+        itemSize: { N: fileSize.toString() },
+        createdAt: { S: timestamp },
+        updatedAt: { S: timestamp },
+        encryptedDataKey: { S: encryptedDataKey },
+        itemHash: { S: fileHash },
+        hasThumbnail: { BOOL: hasThumbnail },
+        itemStatus: { S: "pending" }, // for 'Orphaned Records' search
+      },
+    };
+
     try {
-      await ddb.send(
-        new PutItemCommand({
-          TableName: process.env.DYNAMODB_TABLE_NAME,
-          Item: {
-            PK: { S: `USER#${res.locals.user.sub}#IN#${parentId}` },
-            SK: { S: `ID#${fileId}#TYPE#file` },
-            GSI1PK: {
-              S: `USER#${res.locals.user.sub}#PATH#${itemPath}`,
-            },
-            GSI1SK: { S: `NAME#${fileName}` },
-            userId: { S: res.locals.user.sub },
-            itemName: { S: fileName },
-            itemId: { S: fileId },
-            parentId: { S: parentId },
-            itemPath: { S: itemPath },
-            itemType: { S: fileType },
-            itemSize: { N: fileSize.toString() },
-            createdAt: { S: timestamp },
-            updatedAt: { S: timestamp },
-            encryptedDataKey: { S: encryptedDataKey },
-            fileHash: { S: fileHash },
-            itemStatus: { S: "pending" }, // for 'Orphaned Records' search
-          },
-        })
-      );
+      await ddb.send(new PutItemCommand(params));
+      const uploadURL = await generateUploadURL({
+        userId: res.locals.user.sub,
+        fileId: fileId,
+        fileType: fileType,
+        fileSize: fileSize,
+        fileHash: fileHash,
+      });
 
       res.send({
-        url: await generateUploadURL({
-          userId: res.locals.user.sub,
-          fileId: fileId,
-          fileType: fileType,
-          fileSize: fileSize,
-          fileHash: fileHash,
-        }),
-        fileId: fileId,
+        uploadURL,
+        fileId,
       });
     } catch (err) {
       console.error(err);
@@ -92,5 +95,4 @@ export default (router) => {
       res.status(500).send({ error: "Something went wrong" });
     }
   });
-  // TODO: POST - upload thumbnails for a file
 };
